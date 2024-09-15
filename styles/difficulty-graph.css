@@ -1,0 +1,21 @@
+.difficulty-graph {
+    position: relative;
+    height: 128px;
+    width: 549px;
+    margin: 0 10px;
+}
+
+.difficulty-graph > * {
+    position: absolute;
+    top: 0;
+}
+
+.difficulty-graph .progress {
+    width: 549px;
+    overflow: hidden;
+    transition: ease 600ms;
+}
+
+.difficulty-graph .chart {
+    transform: scale(1, -1);
+}

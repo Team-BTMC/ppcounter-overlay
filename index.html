@@ -19,6 +19,10 @@
 			rel="stylesheet"
 			href="styles/style.css"
 		/>
+        <link
+            rel="stylesheet"
+            href="styles/difficulty-graph.css"
+        />
 	</head>
 
 	<body>
@@ -130,9 +134,18 @@
 			</div> -->
 		</div>
 
+        <div class="difficulty-graph">
+            <canvas class="chart darker" width="549" height="64"></canvas>
+            <div class="progress">
+                <canvas class="chart lighter" width="549" height="64"></canvas>
+            </div>
+        </div>
+
 		<!--        OTHER SCRIPTS        -->
 		<script src="js/countUp.js"></script>
 		<script src="js/odometr.js"></script>
+		<script src="js/Chart.min.js"></script>
+		<script type="module" src="js/smooth.js"></script>
 
 		<!--        YOUR COUNTER LOGIC FILES        -->
 		<script
