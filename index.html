@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>BTMC-Overlay</title>
+		<meta charset="UTF-8" />
+		<meta
+			http-equiv="X-UA-Compatible"
+			content="IE=edge"
+		/>
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<link
+			rel="stylesheet"
+			href="styles/odometr.css"
+		/>
+		<link
+			rel="stylesheet"
+			href="styles/style.css"
+		/>
+	</head>
+
+	<body>
+		<div class="main">
+			<div class="bg"></div>
+			<div class="Left">
+				<img
+					class="bg-image"
+					src="img/bg.png"
+				/>
+				<div class="bg-overlay"></div>
+				<div class="SongInfo">
+					<div class="ArtistSong">
+						<!-- Code for Artist & Song -->
+						<p id="artist-song-text">
+							LONG ARTIST NAME SKDGHJG - LONG SONG TITLE IDGSDGI
+						</p>
+					</div>
+					<div class="Difficulty">
+						<!-- Code for Diff name -->
+						<p>[OUTRAGIOUSLY LONG DIFFNAMEha]</p>
+					</div>
+				</div>
+				<div class="MapInfo">
+					<div class="SR">
+						<!-- Code for Starrating -->
+						<p>7.92</p>
+						<img src="img/star.png" />
+					</div>
+					<div class="MapStatistics">
+						<div class="BPM">
+							<!-- Code for BPM -->
+							<p class="small">BPM</p>
+							<p class="small">200</p>
+						</div>
+						<div class="CS">
+							<!-- Code for CS -->
+							<p class="small">CS</p>
+							<p class="small">4.6</p>
+						</div>
+						<div class="AR">
+							<!-- Code for AR -->
+							<p class="small">AR</p>
+							<p class="small">10.5</p>
+						</div>
+						<div class="OD">
+							<!-- Code for OD -->
+							<p class="small">OD</p>
+							<p class="small">10.5</p>
+						</div>
+						<div class="HP">
+							<!-- Code for HP -->
+							<p class="small">HP</p>
+							<p class="small">4.6</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="Right">
+				<div class="Hits">
+					<div class="hit100">
+						<!-- Code for 100 -->
+						<p>5</p>
+						<div class="hit-icon green"></div>
+					</div>
+					<div class="hit50">
+						<!-- Code for 50 -->
+						<p>2</p>
+						<div class="hit-icon yellow"></div>
+					</div>
+					<div class="hit0">
+						<!-- Code for miss -->
+						<p>1</p>
+						<div class="hit-icon red"></div>
+					</div>
+				</div>
+				<div class="PPS">
+					<div class="AlignPP CurrentPP">
+						<!-- Code for Current PP -->
+						<p>0</p>
+						<p>pp</p>
+					</div>
+					<p class="slash">/</p>
+					<div class="AlignPP PPifFC">
+						<!-- Code for PP if Full Combo -->
+						<p>1450</p>
+						<p>pp</p>
+					</div>
+				</div>
+			</div>
+			<div class="dashed-line-vertical"></div>
+			<div class="dashed-line-horizontal"></div>
+			<!-- THIS CODE IS HERE TO SEE HOW THIS STUFF WORKS MOSTLY LMAO -->
+			<!-- <div class="test-style">
+				<span id="h100"></span>
+			</div>
+			<div class="test-style">
+				<span id="h50"></span>
+			</div>
+			<div class="test-style">
+				<span id="h0"></span>
+			</div>
+			<div class="test-style">
+				<span
+					id="pp"
+					class="odometer"
+				></span>
+				<span>pp</span>
+			</div> -->
+		</div>
+
+		<!--        OTHER SCRIPTS        -->
+		<script src="js/countUp.js"></script>
+		<script src="js/odometr.js"></script>
+
+		<!--        YOUR COUNTER LOGIC FILES        -->
+		<script
+			type="module"
+			src="index.js"
+		></script>
+	</body>
+</html>
