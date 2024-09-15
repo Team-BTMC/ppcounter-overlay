@@ -19,10 +19,10 @@
 			rel="stylesheet"
 			href="styles/style.css"
 		/>
-        <link
-            rel="stylesheet"
-            href="styles/difficulty-graph.css"
-        />
+		<link
+			rel="stylesheet"
+			href="styles/difficulty-graph.css"
+		/>
 	</head>
 
 	<body>
@@ -30,53 +30,71 @@
 			<div class="bg"></div>
 			<div class="Left">
 				<img
+					id="bg"
 					class="bg-image"
-					src="img/bg.png"
+					src=""
 				/>
 				<div class="bg-overlay"></div>
 				<div class="SongInfo">
 					<div class="ArtistSong">
 						<!-- Code for Artist & Song -->
-						<p id="artist-song-text">
+						<!-- <p id="artist-song-text">
 							LONG ARTIST NAME SKDGHJG - LONG SONG TITLE IDGSDGI
-						</p>
+						</p> -->
+						<span id="title"></span>
 					</div>
 					<div class="Difficulty">
 						<!-- Code for Diff name -->
-						<p>[OUTRAGIOUSLY LONG DIFFNAMEha]</p>
+						<!-- <p>[OUTRAGIOUSLY LONG DIFFNAMEha]</p> -->
+						<span id="diff"></span>
 					</div>
 				</div>
 				<div class="MapInfo">
 					<div class="SR">
 						<!-- Code for Starrating -->
-						<p>7.92</p>
+						<span id="sr"></span>
 						<img src="img/star.png" />
 					</div>
 					<div class="MapStatistics">
 						<div class="BPM">
 							<!-- Code for BPM -->
 							<p class="small">BPM</p>
-							<p class="small">200</p>
+							<span
+								id="bpm"
+								class="small"
+							></span>
 						</div>
 						<div class="CS">
 							<!-- Code for CS -->
 							<p class="small">CS</p>
-							<p class="small">4.6</p>
+							<span
+								id="cs"
+								class="small"
+							></span>
 						</div>
 						<div class="AR">
 							<!-- Code for AR -->
 							<p class="small">AR</p>
-							<p class="small">10.5</p>
+							<span
+								id="ar"
+								class="small"
+							></span>
 						</div>
 						<div class="OD">
 							<!-- Code for OD -->
 							<p class="small">OD</p>
-							<p class="small">10.5</p>
+							<span
+								id="od"
+								class="small"
+							></span>
 						</div>
 						<div class="HP">
 							<!-- Code for HP -->
 							<p class="small">HP</p>
-							<p class="small">4.6</p>
+							<span
+								id="hp"
+								class="small"
+							></span>
 						</div>
 					</div>
 				</div>
@@ -84,68 +102,59 @@
 			<div class="Right">
 				<div class="Hits">
 					<div class="hit100">
-						<!-- Code for 100 -->
-						<p>5</p>
+						<span id="h100"></span>
 						<div class="hit-icon green"></div>
 					</div>
 					<div class="hit50">
-						<!-- Code for 50 -->
-						<p>2</p>
+						<span id="h50"></span>
 						<div class="hit-icon yellow"></div>
 					</div>
 					<div class="hit0">
-						<!-- Code for miss -->
-						<p>1</p>
+						<span id="h0"></span>
 						<div class="hit-icon red"></div>
 					</div>
 				</div>
 				<div class="PPS">
 					<div class="AlignPP CurrentPP">
-						<!-- Code for Current PP -->
-						<p>0</p>
+						<span
+							id="pp"
+							class="odometer"
+						></span>
 						<p>pp</p>
 					</div>
 					<p class="slash">/</p>
 					<div class="AlignPP PPifFC">
 						<!-- Code for PP if Full Combo -->
-						<p>1450</p>
+						<span
+							id="ppMax"
+							class="odometer"
+						></span>
 						<p>pp</p>
 					</div>
 				</div>
 			</div>
 			<div class="dashed-line-vertical"></div>
 			<div class="dashed-line-horizontal"></div>
-			<!-- THIS CODE IS HERE TO SEE HOW THIS STUFF WORKS MOSTLY LMAO -->
-			<!-- <div class="test-style">
-				<span id="h100"></span>
-			</div>
-			<div class="test-style">
-				<span id="h50"></span>
-			</div>
-			<div class="test-style">
-				<span id="h0"></span>
-			</div>
-			<div class="test-style">
-				<span
-					id="pp"
-					class="odometer"
-				></span>
-				<span>pp</span>
-			</div> -->
 		</div>
 
-        <div class="difficulty-graph">
-            <canvas class="chart darker" width="549" height="64"></canvas>
-            <div class="progress">
-                <canvas class="chart lighter" width="549" height="64"></canvas>
-            </div>
-        </div>
-
+		<div class="difficulty-graph">
+			<canvas
+				class="chart darker"
+				width="549"
+				height="64"
+			></canvas>
+			<div class="progress">
+				<canvas
+					class="chart lighter"
+					width="549"
+					height="64"
+				></canvas>
+			</div>
+		</div>
 		<!--        OTHER SCRIPTS        -->
-		<script src="js/countUp.js"></script>
 		<script src="js/odometr.js"></script>
+		<script src="js/countUp.js"></script>
 		<script src="js/Chart.min.js"></script>
-		<script type="module" src="js/smooth.js"></script>
 
 		<!--        YOUR COUNTER LOGIC FILES        -->
 		<script

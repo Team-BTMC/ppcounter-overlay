@@ -1,7 +1,7 @@
 Usecase: ingame
-Name:  BTMC-Overlay
-Author:  Happy_24
-CompatibleWith:  tosu
-Resolution:  584 x 184
-authorLinks:  https://github.com/happpy24, https://twitter.com/happpy24
+Name: BTMC-Overlay
+Author: Happy_24
+CompatibleWith: gosu, tosu
+Resolution: 584 x 184
+authorLinks: https://github.com/happpy24, https://twitter.com/happpy24
 Notes: created for BTMC with love <3

@@ -35,7 +35,7 @@
     position: absolute;
     bottom: 5px;
     left: 5px;
-    width: calc(100% - 5px); 
+    width: calc(100%); 
     height: calc(100% - 5px);
     border-radius: 0 0 0 15px;
     z-index: -1;
@@ -46,7 +46,7 @@
     position: absolute;
     bottom: 5px;
     left: 5px;
-    width: calc(100% - 10px);
+    width: calc(100%);
     height: calc(100% - 5px);
     border-radius: 0 0 0 15px;
     background: rgba(0, 0, 0, 0.66); 
@@ -101,7 +101,7 @@
     overflow: hidden;
 }
 
-.Difficulty p {
+.Difficulty span {
     display: inline-block;
     white-space: nowrap;
     position: relative;
@@ -153,6 +153,10 @@
     color: #FEFFB8;
 }
 
+.BPM span {
+    color: #FEFFB8;
+}
+
 .Right {
     display: flex;
     margin-top: 15px;
@@ -179,7 +183,7 @@
     width: 80px;
 }
 
-.Hits p {
+.Hits span {
     width: 100%;
     font-size: 24px;
     text-align: center;
@@ -210,21 +214,20 @@
     justify-content: space-evenly;
     position: relative;
     width: 100%;
-    margin-top: 5px;
+    margin-top: 6px;
 }
 
 .AlignPP {
     display: flex;
     flex: 10;
+    gap: 2px;
     flex-direction: row;
     justify-content: center;
     align-items: center;
 }
 
-.AlignPP p {
-    display: inline;
+.AlignPP span {
     text-align: center;
-    font-size: 24px;
     margin: 0;
     color: #ffffff;
 }
@@ -234,6 +237,65 @@
     font-size: 20px;
     margin-top: 4px;
     color: #ffffff;
+}
+
+.odometer {
+    display: inline-block;
+    vertical-align: middle;
+    position: relative;
+    font-family: 'BalooBold';
+    font-size: 24px;
+    color: white;
+}
+
+.odometer .odometer-digit {
+    display: inline-block;
+    vertical-align: middle;
+    position: relative;
+}
+
+.odometer .odometer-digit-spacer {
+    display: inline-block;
+    vertical-align: middle;
+    visibility: hidden;
+}
+
+.odometer .odometer-digit-inner {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+}
+
+.odometer .odometer-ribbon {
+    display: block;
+}
+
+.odometer .odometer-ribbon-inner {
+    display: block;
+    backface-visibility: hidden;
+}
+
+.odometer .odometer-value {
+    display: block;
+    transform: translateZ(0);
+}
+
+.odometer.odometer-animating-up .odometer-ribbon-inner,
+.odometer.odometer-animating-down .odometer-ribbon-inner {
+    transition: transform 300ms;
+    transform: translateY(0);
+}
+
+.odometer.odometer-animating-up .odometer-animating .odometer-ribbon-inner {
+    transform: translateY(-100%);
+}
+
+.odometer.odometer-animating-down .odometer-animating .odometer-ribbon-inner {
+    transform: translateY(0);
 }
 
 .dashed-line-vertical {

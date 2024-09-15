@@ -1,20 +1,25 @@
-// connecting to websocket
 import WebSocketManager from './js/socket.js';
-import { createChartConfig, smooth } from "./js/difficulty-graph.js";
+import { createChartConfig, smooth } from "./js/difficulty-graph.js"
 const socket = new WebSocketManager('127.0.0.1:24050');
-
-
 
 const DIFFICULTY_GRAPH_SMOOTHING = 3;
 
-
-
-// cache values here to prevent constant updating
 const cache = {
   h100: -1,
   h50: -1,
   h0: -1,
   accuracy: -1,
+  title: "",
+  artist: "",
+  difficulty: "",
+  bpm: -1,
+  cs: -1,
+  ar: -1,
+  od: -1,
+  hp: -1,
+  maxSR: -1,
+  ppFC: -1,
+  background: "",
   difficultyGraph: {
     data: '',
     seek: 0,
@@ -23,13 +28,9 @@ const cache = {
   }
 };
 
-
-
-// Smooth numbers update
-const accuracy = new CountUp('accuracy', 0, 0, 2, .5, { useEasing: true, useGrouping: true, separator: " ", decimal: "." })
-const h100 = new CountUp('h100', 0, 0, 0, .5, { useEasing: true, useGrouping: true, separator: " ", decimal: "." })
-const h50 = new CountUp('h50', 0, 0, 0, .5, { useEasing: true, useGrouping: true, separator: " ", decimal: "." })
-const h0 = new CountUp('h0', 0, 0, 0, .5, { useEasing: true, useGrouping: true, separator: " ", decimal: "." })
+const h100 = new CountUp('h100', 0, 0, 0, .5, { useEasing: true, useGrouping: true, separator: " ", decimal: "." });
+const h50 = new CountUp('h50', 0, 0, 0, .5, { useEasing: true, useGrouping: true, separator: " ", decimal: "." });
+const h0 = new CountUp('h0', 0, 0, 0, .5, { useEasing: true, useGrouping: true, separator: " ", decimal: "." });
 
 const configDarker = createChartConfig('rgba(185, 234, 255, 0.4)');
 const configLighter = createChartConfig('rgba(185, 234, 255, 0.8)');
@@ -39,10 +40,7 @@ let chartProgress;
 
 const categories = new Set(["aim", "speed"]);
 
-
-
-// receive message update from websocket
-socket.api_v2(({ play, performance, beatmap }) => {
+socket.api_v2(({ play, beatmap, directPath, folders, performance}) => {
   try {
     if (chartDarker !== undefined && chartLighter !== undefined && chartProgress !== undefined) {
       const dataString = JSON.stringify(performance.graph.xaxis);
@@ -62,7 +60,6 @@ socket.api_v2(({ play, performance, beatmap }) => {
         }
 
         const smoothed = smooth(data, DIFFICULTY_GRAPH_SMOOTHING, x => Math.max(0, x / 1000));
-        console.log(smoothed);
 
         configDarker.data.datasets[0].data = smoothed;
         configDarker.data.labels = smoothed;
@@ -78,48 +75,99 @@ socket.api_v2(({ play, performance, beatmap }) => {
       chartProgress.style.width = String(percentage) + "%";
     }
 
-    // check if value has changed
     if (cache.h100 !== play.hits['100']) {
-      // update cache
       cache.h100 = play.hits['100'];
-
-
-      //      IMPORTANT   !!   USE ONE OF THEM
-
-      // update html via countup
       h100.update(play.hits['100']);
-
-      // update html via js
       document.getElementById('h100').innerHTML = play.hits['100'];
-    };
-
-
+    }
 
     if (cache.h50 !== play.hits['50']) {
       cache.h50 = play.hits['50'];
       h50.update(play.hits['50']);
-    };
+    }
 
     if (cache.h0 !== play.hits['0']) {
       cache.h0 = play.hits['0'];
       h0.update(play.hits['0']);
-    };
-
-    if (cache.accuracy != play.accuracy) {
-      cache.accuracy = play.accuracy;
-      accuracy.update(play.accuracy);
-    };
+    }
 
     if (cache.pp !== Math.round(play.pp.current)) {
       cache.pp = Math.round(play.pp.current);
       document.getElementById('pp').innerHTML = Math.round(play.pp.current);
+    }
+
+    if (cache.artist !== beatmap.artist || cache.title !== beatmap.stats.title) {
+      cache.artist = beatmap.artist;
+      cache.title = beatmap.title;
+      document.getElementById('title').innerHTML = `${cache.artist} - ${cache.title}`;
+    }
+
+    if (cache.difficulty !== beatmap.version) {
+      cache.difficulty = beatmap.version;
+      document.getElementById('diff').innerHTML = beatmap.version;
+    }
+
+    if (cache.bpm !== beatmap.stats.bpm.realtime) {
+      cache.bpm = beatmap.stats.bpm.realtime;
+      document.getElementById('bpm').innerHTML = beatmap.stats.bpm.realtime;
+    }
+
+    if (cache.cs !== beatmap.stats.cs.converted) {
+      cache.cs = beatmap.stats.cs.converted;
+      document.getElementById('cs').innerHTML = beatmap.stats.cs.converted;
+    }
+
+    if (cache.ar !== beatmap.stats.ar.converted) {
+      cache.ar = beatmap.stats.ar.converted;
+      document.getElementById('ar').innerHTML = beatmap.stats.ar.converted;
+    }
+
+    if (cache.od !== beatmap.stats.od.converted) {
+      cache.od = beatmap.stats.od.converted;
+      document.getElementById('od').innerHTML = beatmap.stats.od.converted;
+    }
+
+    if (cache.hp !== beatmap.stats.hp.converted) {
+      cache.hp = beatmap.stats.hp.converted;
+      document.getElementById('hp').innerHTML = beatmap.stats.hp.converted;
+    }
+
+    if (cache.maxSR !== beatmap.stats.stars.total) {
+      cache.maxSR = beatmap.stats.stars.total;
+      document.getElementById('sr').innerHTML = beatmap.stats.stars.total;
+    }
+
+    if (cache.ppFC !== play.pp.fc) {
+      cache.ppFC = play.pp.fc;
+      document.getElementById('ppMax').innerHTML = Math.round(play.pp.fc);;
+    }
+
+    if (cache['menu.bm.path.full'] != directPath.beatmapBackground) {
+      cache['menu.bm.path.full'] = directPath.beatmapBackground;
+  
+      const background_path = directPath.beatmapBackground.replace(folders.songs, '');
+  
+      const background = document.getElementById('bg');
+      background.style.opacity = 0;
+
+      setTimeout(() => {
+        background.src = `http://127.0.0.1:24050/files/beatmap/${background_path}`;  
+        setTimeout(() => {
+          background.style.opacity = 1;
+        }, 200);
+      }, 200);
+  
+  
+  
+      const image = new Image();
+      image.src = `http://127.0.0.1:24050/files/beatmap/${background_path}`;
+      image.onerror = () => document.getElementById('bg').classList.add('active');
+      image.onload = () => document.getElementById('bg').classList.remove('active');
     };
   } catch (error) {
     console.log(error);
-  };
+  }
 });
-
-
 
 window.addEventListener('load', () => {
   chartDarker = new Chart(
