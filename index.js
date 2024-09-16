@@ -1,8 +1,13 @@
 import WebSocketManager from './js/socket.js';
-import { createChartConfig, smooth } from "./js/difficulty-graph.js"
+import {
+  createChartConfig,
+  slidingAverageWindowFilter,
+  standardDeviationFilter,
+  toChartData
+} from "./js/difficulty-graph.js";
 const socket = new WebSocketManager('127.0.0.1:24050');
 
-const DIFFICULTY_GRAPH_SMOOTHING = 3;
+const DIFFICULTY_GRAPH_SMOOTHING = 2; // from interval <2; 10> ... tbh, over 4 it looks like doo doo
 
 const cache = {
   h100: -1,
@@ -38,7 +43,7 @@ let chartDarker;
 let chartLighter;
 let chartProgress;
 
-const categories = new Set(["aim", "speed"]);
+const channels = new Set(["aim", "speed"]);
 
 socket.api_v2(({ play, beatmap, directPath, folders, performance}) => {
   try {
@@ -47,9 +52,11 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance}) => {
       if (cache.difficultyGraph.data !== dataString) {
         cache.difficultyGraph.data = dataString;
 
+        console.time('[GRAPH SMOOTHING]')
+
         const data = new Float32Array(performance.graph.xaxis.length);
         for (const series of performance.graph.series) {
-          if (!categories.has(series.name)) {
+          if (!channels.has(series.name)) {
             continue;
           }
 
@@ -58,13 +65,32 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance}) => {
           }
         }
 
-        const smoothed = smooth(data, DIFFICULTY_GRAPH_SMOOTHING, x => Math.max(0, x / 1000));
+        let drainSamples = 0;
+        for (let i = 0; i < data.length; i++) {
+          data[i] = Math.max(0, data[i]);
 
-        configDarker.data.datasets[0].data = smoothed;
-        configDarker.data.labels = smoothed;
+          if (data[i] !== 0) {
+            drainSamples++;
+          }
+        }
 
-        configLighter.data.datasets[0].data = smoothed;
-        configLighter.data.labels = smoothed;
+        const smoothing = Math.round(drainSamples / (Math.PI * 100)) * DIFFICULTY_GRAPH_SMOOTHING;
+        const graph = toChartData(
+          smoothing === 0
+            ? data
+            : standardDeviationFilter(
+              slidingAverageWindowFilter(data, Math.round(data.length / 600) * DIFFICULTY_GRAPH_SMOOTHING),
+              (Math.PI * Math.log2(DIFFICULTY_GRAPH_SMOOTHING)) / 10
+            ),
+        );
+
+        console.timeEnd('[GRAPH SMOOTHING]');
+
+        configDarker.data.datasets[0].data = graph;
+        configDarker.data.labels = graph;
+
+        configLighter.data.datasets[0].data = graph;
+        configLighter.data.labels = graph;
 
         chartDarker.update();
         chartLighter.update();
