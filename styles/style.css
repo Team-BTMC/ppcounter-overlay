@@ -74,42 +74,48 @@
     margin-right: 7px;
 }
 
-.ArtistSong {
+.ArtistSong, .Difficulty {
     display: flex;
     position: relative;
     width: 100%;
     white-space: nowrap;
     overflow: hidden;
-    margin-top: 0;
 }
 
-.ArtistSong p {
+.ArtistSong span, .Difficulty span {
     display: inline-block;
     white-space: nowrap;
     position: relative;
     top: 0;
     left: 0;
     will-change: transform;
-}
-
-.Difficulty {
-    display: flex;
-    position: relative;
-    width: 100%;
-    top: -8px;
-    white-space: nowrap;
-    overflow: hidden;
+    transition: transform 0.1s linear;
 }
 
 .Difficulty span {
-    display: inline-block;
-    white-space: nowrap;
-    position: relative;
     font-size: 16px;
-    top: 0;
-    left: 0;
-    will-change: transform;
     color: #c2c2c2;
+}
+
+.ArtistSong {
+    margin-top: 0;
+}
+
+.Difficulty {
+    top: -8px;
+}
+
+.animate-1 {
+    animation: scroll 10s linear infinite;
+}
+
+.animate-2 {
+    animation: scroll 10s linear infinite;
+}
+
+@keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
 }
 
 .MapInfo {
@@ -316,13 +322,4 @@
     width: 216px;
     border: 2px dashed #254982;
     z-index: 10;
-}
-
-@keyframes scroll-left {
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        transform: translateX(-100%);
-    }
 }
