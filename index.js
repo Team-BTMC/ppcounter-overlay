@@ -47,7 +47,6 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance}) => {
       if (cache.difficultyGraph.data !== dataString) {
         cache.difficultyGraph.data = dataString;
 
-        console.log(performance.graph);
         const data = new Float32Array(performance.graph.xaxis.length);
         for (const series of performance.graph.series) {
           if (!categories.has(series.name)) {
@@ -96,10 +95,10 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance}) => {
       document.getElementById('pp').innerHTML = Math.round(play.pp.current);
     }
 
-    if (cache.artist !== beatmap.artist || cache.title !== beatmap.stats.title) {
+    if (cache.artist !== beatmap.artist || cache.title !== beatmap.title) {
       cache.artist = beatmap.artist;
       cache.title = beatmap.title;
-      document.getElementById('title').innerHTML = `${cache.artist} - ${cache.title}`;
+      document.getElementById('title').innerHTML = `${beatmap.artist} - ${beatmap.title}`;
     }
 
     if (cache.difficulty !== beatmap.version) {
@@ -154,8 +153,8 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance}) => {
         background.src = `http://127.0.0.1:24050/files/beatmap/${background_path}`;  
         setTimeout(() => {
           background.style.opacity = 1;
-        }, 200);
-      }, 200);
+        }, 100);
+      }, 100);
   
   
   
