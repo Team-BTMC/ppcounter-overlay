@@ -81,6 +81,7 @@ const cache = {
   hp: -1,
   maxSR: -1,
   ppFC: -1,
+  ppSS: -1,
   background: "",
   difficultyGraph: {
     data: '',
@@ -102,7 +103,7 @@ let chartProgress;
 
 const channels = new Set(["aim", "speed"]);
 
-socket.api_v2(({ play, beatmap, directPath, folders, performance}) => {
+socket.api_v2(({play, beatmap, directPath, folders, performance, state}) => {
   try {
     if (chartDarker !== undefined && chartLighter !== undefined && chartProgress !== undefined) {
       const dataString = JSON.stringify(performance.graph.xaxis);
@@ -223,9 +224,13 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance}) => {
       document.getElementById('sr').innerHTML = beatmap.stats.stars.total;
     }
 
-    if (cache.ppFC !== play.pp.fc) {
+    if ((state.name === 'Play' || state.name === 'ResultScreen') && cache.ppFC !== play.pp.fc) {
       cache.ppFC = play.pp.fc;
-      document.getElementById('ppMax').innerHTML = Math.round(play.pp.fc);;
+      document.getElementById('ppMax').innerHTML = Math.round(play.pp.fc).toString();
+    } else if (cache.ppSS !== performance.accuracy[100]) {
+      cache.ppSS = performance.accuracy[100];
+      document.getElementById('ppMax').innerHTML = Math.round(performance.accuracy[100]).toString();
+    }
     }
 
     if (cache['menu.bm.path.full'] != directPath.beatmapBackground) {
