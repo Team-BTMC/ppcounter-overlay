@@ -208,6 +208,7 @@
     position: relative;
     width: 100%;
     margin-top: 6px;
+	mask: linear-gradient(to top, transparent 5%, black 30%, black 70%, transparent 95%);
 }
 
 .AlignPP {
