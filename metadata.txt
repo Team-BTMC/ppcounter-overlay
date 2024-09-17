@@ -1,7 +1,7 @@
-Usecase: ingame
-Name: BTMC-Overlay
+Usecase: ingame, obs-overlay
+Name: BTMC-Overlay by Happy_24
 Author: Happy_24
-CompatibleWith: gosu, tosu
+CompatibleWith: tosu
 Resolution: 584 x 184
 authorLinks: https://github.com/happpy24, https://twitter.com/happpy24
 Notes: created for BTMC with love <3
