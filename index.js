@@ -1,6 +1,6 @@
 import WebSocketManager from './js/socket.js';
 import {
-  createChartConfig,
+  createChartConfig, derivativeSmoothingFilter,
   slidingAverageWindowFilter,
   standardDeviationFilter,
   toChartData
@@ -65,23 +65,29 @@ function renderGraph(graphData) {
     }
   }
 
+  const slice = data;
   const smoothing = Math.round(drainSamples / (Math.PI * 100)) * graphSmoothing;
   const graph = toChartData(
     smoothing === 0
-      ? data
+      ? slice
       : standardDeviationFilter(
-        slidingAverageWindowFilter(data, Math.round(data.length / 600) * graphSmoothing),
+        slidingAverageWindowFilter(slice, Math.round(slice.length / 600) * graphSmoothing),
         (Math.PI * Math.log2(graphSmoothing)) / 10
       ),
   );
 
+  const raw = toChartData(new Float64Array(slice))
+  const smoothed = toChartData(
+      derivativeSmoothingFilter(slice, Math.PI / 4, slice.length / 10)
+  );
+
   console.timeEnd('[GRAPH SMOOTHING]');
 
-  configDarker.data.datasets[0].data = graph;
-  configDarker.data.labels = graph;
+  configDarker.data.datasets[0].data = raw;
+  configDarker.data.labels = raw;
 
-  configLighter.data.datasets[0].data = graph;
-  configLighter.data.labels = graph;
+  configLighter.data.datasets[0].data = smoothed;
+  configLighter.data.labels = smoothed;
 
   chartDarker.update();
   chartLighter.update();

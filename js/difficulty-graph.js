@@ -134,6 +134,18 @@ function standardDeviation(array) {
     return Math.sqrt(sum / array.length);
 }
 
+/**
+ * @param {Point} a
+ * @param {Point} b
+ * @param {number} t
+ * @return {Point}
+ */
+function lerp(a, b, t) {
+    return point(
+        a.x + (b.x - a.x) * t,
+        a.y + (b.y - a.y) * t,
+    );
+}
 
 /**
  * @param {Point} a
@@ -161,23 +173,37 @@ function renderIntervalCurved(array, start, end, out) {
     }
 
     const count = end - start;
-    const countLog2 = Math.log2(count);
     const last = array[end] ?? array[end - 1];
+    const center = count; // todo 2 = max smoothness; 2+ = less smooth
 
-    // create starting point
-    const a = point(start, array[start]);
-    // create vector from element before start (or start offset by midpoint) to start
-    const midPoint = (last - array[start]) / count;
-    const v0 = Vec.from(point(start - 1, array[start - 1] ?? array[start] - midPoint), a)
-        .multiply(countLog2);
-    // create end point
-    const b = point(end, last);
-    // create vector from end to element after end (or end offset by midpoint)
-    const v1 = Vec.from(b, point(end, array[end] ?? last - midPoint))
-        .multiply(countLog2);
+    const p0 = point(start, array[start]);
+    const p1 = point(start + center, array[start]);
+    const p2 = point(end - center, last);
+    const p3 = point(end, last);
 
-    for (let k = 0; k < count; k++) {
-        out[start + k] = Math.max(0, bezier(a, v0, b, v1, k / count).y);
+    const resolution = count * 2;
+
+    let lastCurvePoint = p0;
+    out[start] = p0.y;
+
+    for (let i = 1, k = start + 1; i <= resolution && k < end; i++) {
+        const t = i / resolution;
+
+        const a = lerp(p0, p1, t);
+        const b = lerp(p1, p2, t);
+        const c = lerp(p2, p3, t);
+
+        const d = lerp(a, b, t);
+        const e = lerp(b, c, t);
+
+        const curvePoint = lerp(d, e, t);
+
+        while (lastCurvePoint.x <= k && k <= curvePoint.x) {
+            const u = (k - lastCurvePoint.x) / (curvePoint.x / lastCurvePoint.x);
+            out[k++] = Math.max(0, lerp(lastCurvePoint, curvePoint, u).y);
+        }
+
+        lastCurvePoint = curvePoint;
     }
 }
 
@@ -275,6 +301,115 @@ export function standardDeviationFilter(array, standardDeviationFactor) {
 }
 
 /**
+ * @param {ArrayLike<number>} array
+ * @return {{ derivatives: Float64Array, average: number }}
+ */
+function flatDerivative(array) {
+    if (array.length === 0) {
+        return {
+            derivatives: new Float64Array(0),
+            average: 0
+        }
+    }
+
+    const derivatives = new Float64Array(array.length);
+    let last = 0;
+    let sum = array[0];
+    let count = 1;
+
+    for (let i = 0; i < array.length - 1; i++) {
+        const d = (array[i + 1] - array[i]);
+
+        if (Math.sign(last) === Math.sign(d) && d !== 0) {
+            last += d;
+
+            if (i >= 1) {
+                derivatives[i - 1] = NaN;
+            }
+            continue;
+        }
+
+        derivatives[i - 1] = last;
+        sum += Math.abs(last);
+        count++;
+        last = d;
+    }
+
+    const d = (0 - array[array.length - 1]);
+
+    if (Math.sign(last) === Math.sign(d)) {
+        derivatives[derivatives.length - 1] = last + d;
+        sum += Math.abs(last + d);
+    } else {
+        derivatives[derivatives.length - 2] = last;
+        sum += Math.abs(last);
+        derivatives[derivatives.length - 1] = d;
+        sum += Math.abs(d);
+    }
+
+    count++;
+
+    return {
+        derivatives,
+        average: sum / count
+    };
+}
+
+/**
+ * @param {Float64Array} flat
+ * @param {number} current
+ * @return {number}
+ */
+function nextDerivative(flat, current) {
+    for (let i = current + 1; i < flat.length; i++) {
+        if (!isNaN(flat[i])) {
+            return i;
+        }
+    }
+
+    return Number.NEGATIVE_INFINITY;
+}
+
+/**
+ * @param {ArrayLike<number>} array
+ * @param {number} derivativeFactor
+ * @param {number} maxSegmentSize
+ * @return {Float64Array}
+ */
+export function derivativeSmoothingFilter(array, derivativeFactor, maxSegmentSize) {
+    const ret = new Float64Array(array.length);
+    const { derivatives, average } = flatDerivative(array);
+
+    const factoredAverage = average * derivativeFactor;
+
+    let left = nextDerivative(derivatives, -1);
+    if (left !== 0) {
+        renderIntervalCurved(array, 0, left + 1, ret);
+    }
+
+    left : while (left >= 0) {
+        let right = nextDerivative(derivatives, left);
+
+        while (right >= 0) {
+            if (Math.abs(derivatives[right]) < factoredAverage && right - left < maxSegmentSize) {
+                right = nextDerivative(derivatives, right);
+                continue;
+            }
+
+            renderIntervalCurved(array, left + 1, right + 1, ret);
+            left = right;
+            continue left;
+        }
+
+        // render last segment
+        renderIntervalCurved(array, left, array.length - 1, ret);
+        break;
+    }
+
+    return ret;
+}
+
+/**
  *
  * @param {ArrayLike<number>} array
  * @param windowSize
@@ -335,7 +470,7 @@ export function createChartConfig(backgroundColor) {
             },
             elements: {
                 line: {
-                    tension: 0.4,
+                    tension: 0.0,
                     cubicInterpolationMode: 'monotone'
                 },
                 point: {
