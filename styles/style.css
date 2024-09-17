@@ -1,9 +1,4 @@
 @font-face {
-    font-family: 'BalooMedium';
-    src: url('../fonts/Baloo2-Medium.ttf') format('truetype');
-}
-
-@font-face {
     font-family: 'BalooBold';
     src: url('../fonts/Baloo2-Bold.ttf') format('truetype');
 }

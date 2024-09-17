@@ -15,12 +15,7 @@ let graphColor2 = 'rgba(185, 234, 255, 0.7)';
 socket.sendCommand('getSettings', encodeURI(window.COUNTER_PATH));
 socket.commands((data) => {
   try {
-    const { command, message } = data;
-    // get updates for "getSettings" command
-    if (command == 'getSettings') {
-      console.log(command, message); // print out settings for debug
-    };
-
+    const { message } = data;
     if (message['GraphDisabled'] != null) {
       cache['GraphDisabled'] = message['GraphDisabled'];
 
@@ -289,15 +284,12 @@ function reset(reset) {
 
 function checkAndAnimateScroll(box, text, picker) {
   if (text.scrollWidth > box.clientWidth) {
-      // Clone the text span and append it 20px further
       const clone = text.cloneNode(true);
       clone.classList.add('clone');
-      clone.style.left = `${text.scrollWidth + 20}px`; // 20px gap
+      clone.style.left = `${text.scrollWidth + 20}px`;
 
-      // Add both the original and the clone into the box
       box.appendChild(clone);
 
-      // Start scrolling
       startScroll(text, clone, picker);
   }
   else {
@@ -310,14 +302,12 @@ function startScroll(original, clone, picker) {
   let clonePos = original.scrollWidth + 20;
 
   function animate() {
-      originalPos -= 0.2; // Adjust scroll speed here
+      originalPos -= 0.2;
       clonePos -= 0.2;
 
-      // Move both original and clone
       original.style.left = `${originalPos}px`;
       clone.style.left = `${clonePos}px`;
 
-      // Reset position when offscreen
       if (originalPos < -original.scrollWidth - 20) {
           originalPos = clonePos + original.scrollWidth + 20;
       }
