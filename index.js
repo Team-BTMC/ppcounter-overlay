@@ -7,35 +7,12 @@ import {
 } from "./js/difficulty-graph.js";
 const socket = new WebSocketManager('127.0.0.1:24050');
 
-
-
-const cache = {
-  h100: -1,
-  h50: -1,
-  h0: -1,
-  accuracy: -1,
-  title: "",
-  artist: "",
-  difficulty: "",
-  bpm: -1,
-  cs: -1,
-  ar: -1,
-  od: -1,
-  hp: -1,
-  maxSR: -1,
-  ppFC: -1,
-  background: "",
-  difficultyGraph: ''
-};
-
 let graphSmoothing = 2; // from interval <2; 10> ... tbh, over 4 it looks like doo doo
 let configDarker = createChartConfig('rgba(185, 234, 255, 0.4)');
 let configLighter = createChartConfig('rgba(185, 234, 255, 0.7)');
 let chartDarker;
 let chartLighter;
 let chartProgress;
-
-
 
 function renderGraph(graphData) {
   // Better be sure. In case someone forgets
@@ -328,16 +305,16 @@ window.addEventListener('load', () => {
   );
 });
 
-function reset(reset) {
-  let clones = document.querySelectorAll(`.${reset}.clone`);
+function reset(item) {
+  let clones = document.querySelectorAll(`.${item}.clone`);
 
   Array.from(clones).forEach(clone => {
     clone.remove(); 
   });
 
-  if (animationId0 && reset === 'title-text') {
+  if (animationId0 && item === 'title-text') {
     cancelAnimationFrame(animationId0);
-  } else if (animationId1 && reset === 'diff-text') {
+  } else if (animationId1 && item === 'diff-text') {
     cancelAnimationFrame(animationId1);
   }
 }
