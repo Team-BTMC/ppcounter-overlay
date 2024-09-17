@@ -15,7 +15,6 @@
 
 * {
     font-family: 'BalooBold';
-    font-size: 20px;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -42,7 +41,7 @@
     left: 5px;
     width: calc(100%); 
     height: calc(100% - 5px);
-    border-radius: 0 0 0 15px;
+    border-radius: 0 0 0 10px;
     z-index: -1;
     object-fit: cover;
 }
@@ -53,7 +52,7 @@
     left: 5px;
     width: calc(100%);
     height: calc(100% - 5px);
-    border-radius: 0 0 0 15px;
+    border-radius: 0 0 0 10px;
     background: rgba(0, 0, 0, 0.66); 
     z-index: -1;
 }
@@ -98,6 +97,7 @@
 }
 
 .ArtistSong {
+    font-size: 20px;
     margin-top: 0;
 }
 
@@ -119,7 +119,7 @@
 
 .SR {
     display: flex;
-    min-width: 95px;
+    min-width: 85px;
     justify-content: center;
     gap: 5px;
     height: 26px;
@@ -138,8 +138,9 @@
 .SR #sr {
     font-size: 18px;
     width: 40px;
-    height: 16px;
+    height: 30px;
     margin-left: 5px;
+    margin-top: -1px;
 	transition: ease-in-out 300ms;
 	mask: linear-gradient(to top, transparent 5%, black 30%, black 70%, transparent 95%);
 }
@@ -163,6 +164,7 @@ svg {
     width: 100%;
     text-align: center;
     line-height: 15px;
+    font-size: 14px !important;
 }
 
 .small {
@@ -174,6 +176,8 @@ svg {
 }
 
 .BPM span {
+    transition: ease-in-out 300ms;
+    font-size: 14px !important;
     color: #FEFFB8;
 }
 
@@ -234,12 +238,13 @@ svg {
     justify-content: space-evenly;
     position: relative;
     width: 100%;
-    margin-top: 6px;
+    margin-top: 8px;
 	mask: linear-gradient(to top, transparent 5%, black 30%, black 70%, transparent 95%);
 }
 
 .AlignPP {
     display: flex;
+    font-size: 20px;
     flex: 10;
     gap: 2px;
     flex-direction: row;
@@ -249,6 +254,7 @@ svg {
 }
 
 .AlignPP span {
+    font-size: 20px;
     text-align: center;
     margin: 0;
     color: #ffffff;

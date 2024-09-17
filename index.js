@@ -252,6 +252,10 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state}) => {
     let ppSlash = document.getElementsByClassName('slash')[0];
     
     if (state.name !== 'Play' && state.name !== 'ResultScreen') {
+      const pp = document.getElementById('ppMax');
+      if (pp.innerHTML !== cache.ppSS) {
+        pp.innerHTML = Math.round(performance.accuracy[100]).toString();
+      }
       ppIfFC.style.transform = 'translateX(-60px)';
       ppCurrent.style.transform = 'translateY(20px)';
       ppSlash.style.transform = 'translateY(20px)';
