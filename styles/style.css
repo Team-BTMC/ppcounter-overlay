@@ -8,6 +8,16 @@
     src: url('../fonts/Baloo2-Bold.ttf') format('truetype');
 }
 
+:root {
+    --gradientColor1: #1D3860;
+    --gradientColor2: #072045;
+    --dashedLineColor: #254982;
+    --outlineColor: #F3F589;
+    --hunderdColor: #6EF063;
+    --fiftyColor: #F0E263;
+    --missColor: #F06363;
+}
+
 * {
     font-family: 'BalooBold';
     font-size: 20px;
@@ -59,11 +69,11 @@
     left: 0;
     width: 569px;
     height: 92px;
-    background: linear-gradient(to bottom, #1D3860, #072045);
-    border: 0 solid #F3F589;
-    border-bottom: 5px solid #F3F589;
-    border-left: 5px solid #F3F589;
-    border-right: 5px solid #F3F589;
+    background: linear-gradient(to bottom, var(--gradientColor1), var(--gradientColor2));
+    border: 0 solid var(--outlineColor);
+    border-bottom: 5px solid var(--outlineColor);
+    border-left: 5px solid var(--outlineColor);
+    border-right: 5px solid var(--outlineColor);
     border-radius: 0 0 15px 15px;
     z-index: -2;
 }
@@ -75,21 +85,16 @@
 }
 
 .ArtistSong, .Difficulty {
-    display: flex;
     position: relative;
-    width: 100%;
-    white-space: nowrap;
     overflow: hidden;
+    height: 30px;
 }
 
 .ArtistSong span, .Difficulty span {
-    display: inline-block;
     white-space: nowrap;
-    position: relative;
-    top: 0;
-    left: 0;
-    will-change: transform;
-    transition: transform 0.1s linear;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .Difficulty span {
@@ -105,17 +110,8 @@
     top: -8px;
 }
 
-.animate-1 {
-    animation: scroll 10s linear infinite;
-}
-
-.animate-2 {
-    animation: scroll 10s linear infinite;
-}
-
-@keyframes scroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-100%); }
+.animate {
+    transition: none;
 }
 
 .MapInfo {
@@ -130,10 +126,6 @@
     display: flex;
     gap: 10px;
     margin-top: -2px
-}
-
-.SR p {
-    color: #FEFFB8;
 }
 
 .SR img {
@@ -204,15 +196,15 @@
 }
 
 .hit-icon.green {
-    background-color: #6EF063;
+    background-color: var(--hunderdColor);
 }
 
 .hit-icon.yellow {
-    background-color: #F0E263;
+    background-color: var(--fiftyColor);
 }
 
 .hit-icon.red {
-    background-color: #F06363;
+    background-color: var(--missColor);
 }
 
 .PPS {
@@ -310,7 +302,7 @@
     top: 45%;
     transform: translateY(-50%) rotate(90deg);
     width: 85px;
-    border: 2px dashed #254982;
+    border: 2px dashed var(--dashedLineColor);
     z-index: 10;
 }
 
@@ -320,6 +312,6 @@
     top: 55%;
     transform: translateY(-50%);
     width: 216px;
-    border: 2px dashed #254982;
+    border: 2px dashed var(--dashedLineColor);
     z-index: 10;
 }

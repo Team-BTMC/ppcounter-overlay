@@ -1,0 +1,73 @@
+[
+    {
+        "uniqueID": "GraphDisabled",
+        "type": "checkbox",
+        "title": "Disable Graph",
+        "description": "Disable the strain graph.",
+        "options": "Enabled, Disabled",
+        "value": "Enabled"
+    },
+    {
+        "uniqueID": "GraphColor",
+        "type": "color",
+        "title": "Graph Color",
+        "description": "Note: this doesn't work yet.\nChange the color of the strain graph.",
+        "value": "#B9EAFF"
+    },
+    {
+        "uniqueID": "GraphSmoothing",
+        "type": "number",
+        "title": "Graph Smoothing",
+        "description": "Change the smoothing of the strain graph.\nWarning: Any value beyond 4 will look silly.",
+        "value": "3"
+    },
+    {
+        "uniqueID": "GradientColor1",
+        "type": "color",
+        "title": "Gradient Color 1",
+        "description": "Change the top gradient color of the background.",
+        "value": "#1D3860"
+    },
+    {
+        "uniqueID": "GradientColor2",
+        "type": "color",
+        "title": "Gradient Color 2",
+        "description": "Change the bottom gradient color of the background.",
+        "value": "#072045"
+    },
+    {
+        "uniqueID": "OutlineColor",
+        "type": "color",
+        "title": "Outline Color",
+        "description": "Change the color of the outline.",
+        "value": "#F3F589"
+    },
+    {
+        "uniqueID": "DashedLinesColor",
+        "type": "color",
+        "title": "Dashed Lines Color",
+        "description": "Change the color of the dashed lines.",
+        "value": "#254982"
+    },
+    {
+        "uniqueID": "100Color",
+        "type": "color",
+        "title": "100 Color Indicator",
+        "description": "Change the color of the indicator of the 100 marker.",
+        "value": "#6EF063"
+    },
+    {
+        "uniqueID": "50Color",
+        "type": "color",
+        "title": "50 Color Indicator",
+        "description": "Change the color of the indicator of the 50 marker.",
+        "value": "#F0E263"
+    },
+    {
+        "uniqueID": "MissColor",
+        "type": "color",
+        "title": "Miss Color Indicator",
+        "description": "Change the color of the indicator of the miss marker.",
+        "value": "#F06363"
+    }
+]

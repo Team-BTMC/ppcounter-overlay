@@ -7,7 +7,69 @@ import {
 } from "./js/difficulty-graph.js";
 const socket = new WebSocketManager('127.0.0.1:24050');
 
-const DIFFICULTY_GRAPH_SMOOTHING = 2; // from interval <2; 10> ... tbh, over 4 it looks like doo doo
+let DIFFICULTY_GRAPH_SMOOTHING = 3; // from interval <2; 10> ... tbh, over 4 it looks like doo doo
+
+let graphColor1 = 'rgba(185, 234, 255, 0.4)';
+let graphColor2 = 'rgba(185, 234, 255, 0.7)';
+
+socket.sendCommand('getSettings', encodeURI(window.COUNTER_PATH));
+socket.commands((data) => {
+  try {
+    const { command, message } = data;
+    // get updates for "getSettings" command
+    if (command == 'getSettings') {
+      console.log(command, message); // print out settings for debug
+    };
+
+    if (message['GraphDisabled'] != null) {
+      cache['GraphDisabled'] = message['GraphDisabled'];
+
+      if (Boolean(cache['GraphDisabled']) == true) {
+        document.getElementsByClassName('difficulty-graph')[0].style.display = 'none';
+      } else {
+        document.getElementsByClassName('difficulty-graph')[0].style.display = 'block';
+      }
+    }
+
+    // This doesnt work yet
+    if (message['GraphColor'] != null) {
+      graphColor1 = hexToRgbA(message['GraphColor'], 0.4);
+      graphColor2 = hexToRgbA(message['GraphColor'], 0.7);
+    }
+
+    if (message['GraphSmoothing'] != null) {
+      DIFFICULTY_GRAPH_SMOOTHING = message['GraphSmoothing'];
+    }
+
+    if (message['GradientColor1'] != null) {
+      document.body.style.setProperty('--gradientColor1', message['GradientColor1']);
+    };
+    if (message['GradientColor2'] != null) {
+      document.body.style.setProperty('--gradientColor2', message['GradientColor2']);
+    };
+    if (message['OutlineColor'] != null) {
+      document.body.style.setProperty('--outlineColor', message['OutlineColor']);
+    };
+    if (message['DashedLinesColor'] != null) {
+      document.body.style.setProperty('--dashedLineColor', message['DashedLinesColor']);
+    };
+    if (message['100Color'] != null) {
+      document.body.style.setProperty('--hunderdColor', message['100Color']);
+    };
+    if (message['50Color'] != null) {
+      document.body.style.setProperty('--fiftyColor', message['50Color']);
+    };
+    if (message['MissColor'] != null) {
+      document.body.style.setProperty('--missColor', message['MissColor']);
+    };
+
+  } catch (error) {
+    console.log(error);
+  };
+});
+
+let animationId0;
+let animationId1;
 
 const cache = {
   h100: -1,
@@ -37,8 +99,8 @@ const h100 = new CountUp('h100', 0, 0, 0, .5, { useEasing: true, useGrouping: tr
 const h50 = new CountUp('h50', 0, 0, 0, .5, { useEasing: true, useGrouping: true, separator: " ", decimal: "." });
 const h0 = new CountUp('h0', 0, 0, 0, .5, { useEasing: true, useGrouping: true, separator: " ", decimal: "." });
 
-const configDarker = createChartConfig('rgba(185, 234, 255, 0.4)');
-const configLighter = createChartConfig('rgba(185, 234, 255, 0.8)');
+let configDarker = createChartConfig(graphColor1);
+let configLighter = createChartConfig(graphColor2);
 let chartDarker;
 let chartLighter;
 let chartProgress;
@@ -125,11 +187,15 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance}) => {
       cache.artist = beatmap.artist;
       cache.title = beatmap.title;
       document.getElementById('title').innerHTML = `${beatmap.artist} - ${beatmap.title}`;
+      reset('title-text');
+      checkAndAnimateScroll(document.querySelector('.ArtistSong'), document.getElementById('title'), 0);
     }
 
     if (cache.difficulty !== beatmap.version) {
       cache.difficulty = beatmap.version;
       document.getElementById('diff').innerHTML = beatmap.version;
+      reset('diff-text');
+      checkAndAnimateScroll(document.querySelector('.Difficulty'), document.getElementById('diff'), 1);
     }
 
     if (cache.bpm !== beatmap.stats.bpm.realtime) {
@@ -206,3 +272,80 @@ window.addEventListener('load', () => {
     configLighter
   );
 });
+
+function reset(reset) {
+  let clones = document.querySelectorAll(`.${reset}.clone`);
+
+  Array.from(clones).forEach(clone => {
+    clone.remove(); 
+  });
+
+  if (animationId0 && reset === 'title-text') {
+    cancelAnimationFrame(animationId0);
+  } else if (animationId1 && reset === 'diff-text') {
+    cancelAnimationFrame(animationId1);
+  }
+}
+
+function checkAndAnimateScroll(box, text, picker) {
+  if (text.scrollWidth > box.clientWidth) {
+      // Clone the text span and append it 20px further
+      const clone = text.cloneNode(true);
+      clone.classList.add('clone');
+      clone.style.left = `${text.scrollWidth + 20}px`; // 20px gap
+
+      // Add both the original and the clone into the box
+      box.appendChild(clone);
+
+      // Start scrolling
+      startScroll(text, clone, picker);
+  }
+  else {
+    text.style.left = '0px';
+  }
+}
+
+function startScroll(original, clone, picker) {
+  let originalPos = 0;
+  let clonePos = original.scrollWidth + 20;
+
+  function animate() {
+      originalPos -= 0.2; // Adjust scroll speed here
+      clonePos -= 0.2;
+
+      // Move both original and clone
+      original.style.left = `${originalPos}px`;
+      clone.style.left = `${clonePos}px`;
+
+      // Reset position when offscreen
+      if (originalPos < -original.scrollWidth - 20) {
+          originalPos = clonePos + original.scrollWidth + 20;
+      }
+      if (clonePos < -clone.scrollWidth - 20) {
+          clonePos = originalPos + clone.scrollWidth + 20;
+      }
+
+      if (picker == 0) {
+        animationId0 = requestAnimationFrame(animate);
+      } else if (picker == 1) {
+        animationId1 = requestAnimationFrame(animate);
+      } else {
+        console.log('Massive error, please report this to the developer on discord: @h_24');
+      }
+  }
+
+  animate();
+}
+
+function hexToRgbA(hex, alpha = 1) {
+  var c;
+  if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+      c = hex.substring(1).split('');
+      if (c.length == 3) {
+          c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+      }
+      c = '0x' + c.join('');
+      return 'rgba(' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + ',' + alpha + ')';
+  }
+  throw new Error('Bad Hex');
+}
