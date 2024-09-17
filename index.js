@@ -146,15 +146,38 @@ socket.commands((data) => {
 let animationId0;
 let animationId1;
 
+const cache = {
+  h100: -1,
+  h50: -1,
+  h0: -1,
+  accuracy: -1,
+  title: "",
+  artist: "",
+  difficulty: "",
+  bpm: -1,
+  cs: -1,
+  ar: -1,
+  od: -1,
+  hp: -1,
+  maxSR: -1,
+  ppFC: -1,
+  ppSS: -1,
+  background: "",
+  difficultyGraph: {
+    data: '',
+    seek: 0,
+    time: 0,
+    played: 0
+  }
+};
+
 const h100 = new CountUp('h100', 0, 0, 0, .5, { useEasing: true, useGrouping: true, separator: " ", decimal: "." });
 const h50 = new CountUp('h50', 0, 0, 0, .5, { useEasing: true, useGrouping: true, separator: " ", decimal: "." });
 const h0 = new CountUp('h0', 0, 0, 0, .5, { useEasing: true, useGrouping: true, separator: " ", decimal: "." });
 
 const channels = new Set(["aim", "speed"]);
 
-
-
-socket.api_v2(({ play, beatmap, directPath, folders, performance}) => {
+socket.api_v2(({play, beatmap, directPath, folders, performance, state}) => {
   try {
     if (chartDarker !== undefined && chartLighter !== undefined && chartProgress !== undefined) {
       const dataString = JSON.stringify(performance.graph);
@@ -231,12 +254,38 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance}) => {
 
     if (cache.maxSR !== beatmap.stats.stars.total) {
       cache.maxSR = beatmap.stats.stars.total;
-      document.getElementById('sr').innerHTML = beatmap.stats.stars.total;
+      let sr = document.getElementById('sr');
+      let srTextColor = beatmap.stats.stars.total >= 6.5 ? '#fd5' : '#000000';
+      sr.innerHTML = beatmap.stats.stars.total;
+      sr.style.color = srTextColor;
+      document.getElementById('srStar').contentDocument.getElementsByTagName('svg')[0].style.fill = srTextColor;
+      document.getElementById('srCont').style.backgroundColor = getDiffColour(cache.maxSR);
     }
 
-    if (cache.ppFC !== play.pp.fc) {
+    if ((state.name === 'Play' || state.name === 'ResultScreen') && cache.ppFC !== play.pp.fc) {
       cache.ppFC = play.pp.fc;
-      document.getElementById('ppMax').innerHTML = Math.round(play.pp.fc);;
+      document.getElementById('ppMax').innerHTML = Math.round(play.pp.fc).toString();
+    } else if (cache.ppSS !== performance.accuracy[100]) {
+      cache.ppSS = performance.accuracy[100];
+      document.getElementById('ppMax').innerHTML = Math.round(performance.accuracy[100]).toString();
+    }
+    
+    let ppIfFC = document.getElementsByClassName('AlignPP PPifFC')[0];
+    let ppCurrent = document.getElementsByClassName('AlignPP CurrentPP')[0];
+    let ppSlash = document.getElementsByClassName('slash')[0];
+    
+    if (state.name !== 'Play' && state.name !== 'ResultScreen') {
+      ppIfFC.style.transform = 'translateX(-60px)';
+      ppCurrent.style.transform = 'translateY(20px)';
+      ppSlash.style.transform = 'translateY(20px)';
+      ppCurrent.style.opacity = 0;
+      ppSlash.style.opacity = 0;
+    } else {
+      ppIfFC.style.transform = 'translateX(0)';
+      ppCurrent.style.transform = 'translateY(0)';
+      ppSlash.style.transform = 'translateY(0)';
+      ppCurrent.style.opacity = 1;
+      ppSlash.style.opacity = 1;
     }
 
     if (cache['menu.bm.path.full'] != directPath.beatmapBackground) {
@@ -300,11 +349,13 @@ function checkAndAnimateScroll(box, text, picker) {
       clone.style.left = `${text.scrollWidth + 20}px`;
 
       box.appendChild(clone);
+      box.style.mask = 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)';
 
       startScroll(text, clone, picker);
   }
   else {
     text.style.left = '0px';
+    box.style.mask = '';
   }
 }
 
@@ -349,4 +400,17 @@ function hexToRgbA(hex, alpha = 1) {
       return 'rgba(' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + ',' + alpha + ')';
   }
   throw new Error('Bad Hex');
+}
+
+// Taken from osu-web
+const difficultyColourSpectrum = d3.scaleLinear()
+  .domain([0.1, 1.25, 2, 2.5, 3.3, 4.2, 4.9, 5.8, 6.7, 7.7, 9])
+  .clamp(true)
+  .range(['#4290FB', '#4FC0FF', '#4FFFD5', '#7CFF4F', '#F6F05C', '#FF8068', '#FF4E6F', '#C645B8', '#6563DE', '#18158E', '#000000'])
+  .interpolate(d3.interpolateRgb.gamma(2.2));
+  
+function getDiffColour(rating) {
+  if (rating < 0.1) return '#AAAAAA';
+  if (rating >= 9) return '#000000';
+  return difficultyColourSpectrum(rating);
 }
