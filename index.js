@@ -311,11 +311,13 @@ function checkAndAnimateScroll(box, text, picker) {
       clone.style.left = `${text.scrollWidth + 20}px`;
 
       box.appendChild(clone);
+      box.style.mask = 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)';
 
       startScroll(text, clone, picker);
   }
   else {
     text.style.left = '0px';
+    box.style.mask = '';
   }
 }
 
