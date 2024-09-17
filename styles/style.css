@@ -217,6 +217,7 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
+	transition: ease-in-out 500ms;
 }
 
 .AlignPP span {
@@ -230,6 +231,7 @@
     font-size: 20px;
     margin-top: 4px;
     color: #ffffff;
+	transition: ease-in-out 500ms;
 }
 
 .odometer {

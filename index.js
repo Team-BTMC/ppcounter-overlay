@@ -231,6 +231,23 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state}) => {
       cache.ppSS = performance.accuracy[100];
       document.getElementById('ppMax').innerHTML = Math.round(performance.accuracy[100]).toString();
     }
+    
+    let ppIfFC = document.getElementsByClassName('AlignPP PPifFC')[0];
+    let ppCurrent = document.getElementsByClassName('AlignPP CurrentPP')[0];
+    let ppSlash = document.getElementsByClassName('slash')[0];
+    
+    if (state.name !== 'Play' && state.name !== 'ResultScreen') {
+      ppIfFC.style.transform = 'translateX(-60px)';
+      ppCurrent.style.transform = 'translateY(20px)';
+      ppSlash.style.transform = 'translateY(20px)';
+      ppCurrent.style.opacity = 0;
+      ppSlash.style.opacity = 0;
+    } else {
+      ppIfFC.style.transform = 'translateX(0)';
+      ppCurrent.style.transform = 'translateY(0)';
+      ppSlash.style.transform = 'translateY(0)';
+      ppCurrent.style.opacity = 1;
+      ppSlash.style.opacity = 1;
     }
 
     if (cache['menu.bm.path.full'] != directPath.beatmapBackground) {
