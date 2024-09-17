@@ -7,10 +7,87 @@ import {
 } from "./js/difficulty-graph.js";
 const socket = new WebSocketManager('127.0.0.1:24050');
 
-let DIFFICULTY_GRAPH_SMOOTHING = 3; // from interval <2; 10> ... tbh, over 4 it looks like doo doo
 
-let graphColor1 = 'rgba(185, 234, 255, 0.4)';
-let graphColor2 = 'rgba(185, 234, 255, 0.7)';
+
+const cache = {
+  h100: -1,
+  h50: -1,
+  h0: -1,
+  accuracy: -1,
+  title: "",
+  artist: "",
+  difficulty: "",
+  bpm: -1,
+  cs: -1,
+  ar: -1,
+  od: -1,
+  hp: -1,
+  maxSR: -1,
+  ppFC: -1,
+  background: "",
+  difficultyGraph: ''
+};
+
+let graphSmoothing = 2; // from interval <2; 10> ... tbh, over 4 it looks like doo doo
+let configDarker = createChartConfig('rgba(185, 234, 255, 0.4)');
+let configLighter = createChartConfig('rgba(185, 234, 255, 0.7)');
+let chartDarker;
+let chartLighter;
+let chartProgress;
+
+
+
+function renderGraph(graphData) {
+  // Better be sure. In case someone forgets
+  if (chartDarker === undefined || chartLighter === undefined || chartProgress === undefined) {
+    return;
+  }
+
+  console.time('[GRAPH SMOOTHING]');
+
+  const data = new Float32Array(graphData.xaxis.length);
+  for (const series of graphData.series) {
+    if (!channels.has(series.name)) {
+      continue;
+    }
+
+    for (let i = 0; i < data.length && i < series.data.length; i++) {
+      data[i] += series.data[i];
+    }
+  }
+
+  let drainSamples = 0;
+  for (let i = 0; i < data.length; i++) {
+    data[i] = Math.max(0, data[i]);
+
+    if (data[i] !== 0) {
+      drainSamples++;
+    }
+  }
+
+  const smoothing = Math.round(drainSamples / (Math.PI * 100)) * graphSmoothing;
+  const graph = toChartData(
+    smoothing === 0
+      ? data
+      : standardDeviationFilter(
+        slidingAverageWindowFilter(data, Math.round(data.length / 600) * graphSmoothing),
+        (Math.PI * Math.log2(graphSmoothing)) / 10
+      ),
+  );
+
+  console.timeEnd('[GRAPH SMOOTHING]');
+
+  configDarker.data.datasets[0].data = graph;
+  configDarker.data.labels = graph;
+
+  configLighter.data.datasets[0].data = graph;
+  configLighter.data.labels = graph;
+
+  chartDarker.update();
+  chartLighter.update();
+}
+
+
 
 socket.sendCommand('getSettings', encodeURI(window.COUNTER_PATH));
 socket.commands((data) => {
@@ -26,14 +103,17 @@ socket.commands((data) => {
       }
     }
 
-    // This doesnt work yet
     if (message['GraphColor'] != null) {
-      graphColor1 = hexToRgbA(message['GraphColor'], 0.4);
-      graphColor2 = hexToRgbA(message['GraphColor'], 0.7);
+      (chartDarker ?? configDarker).data.datasets[0].backgroundColor = hexToRgbA(message['GraphColor'], 0.4);
+      (configLighter ?? configLighter).data.datasets[0].backgroundColor = hexToRgbA(message['GraphColor'], 0.7);
+
+      chartDarker?.update();
+      chartLighter?.update();
     }
 
     if (message['GraphSmoothing'] != null) {
-      DIFFICULTY_GRAPH_SMOOTHING = message['GraphSmoothing'];
+      graphSmoothing = message['GraphSmoothing'];
+      renderGraph(JSON.parse(cache.difficultyGraph));
     }
 
     if (message['GradientColor1'] != null) {
@@ -95,63 +175,16 @@ const h100 = new CountUp('h100', 0, 0, 0, .5, { useEasing: true, useGrouping: tr
 const h50 = new CountUp('h50', 0, 0, 0, .5, { useEasing: true, useGrouping: true, separator: " ", decimal: "." });
 const h0 = new CountUp('h0', 0, 0, 0, .5, { useEasing: true, useGrouping: true, separator: " ", decimal: "." });
 
-let configDarker = createChartConfig(graphColor1);
-let configLighter = createChartConfig(graphColor2);
-let chartDarker;
-let chartLighter;
-let chartProgress;
-
 const channels = new Set(["aim", "speed"]);
 
 socket.api_v2(({play, beatmap, directPath, folders, performance, state}) => {
   try {
     if (chartDarker !== undefined && chartLighter !== undefined && chartProgress !== undefined) {
-      const dataString = JSON.stringify(performance.graph.xaxis);
-      if (cache.difficultyGraph.data !== dataString) {
-        cache.difficultyGraph.data = dataString;
+      const dataString = JSON.stringify(performance.graph);
+      if (cache.difficultyGraph !== dataString) {
+        cache.difficultyGraph = dataString;
 
-        console.time('[GRAPH SMOOTHING]')
-
-        const data = new Float32Array(performance.graph.xaxis.length);
-        for (const series of performance.graph.series) {
-          if (!channels.has(series.name)) {
-            continue;
-          }
-
-          for (let i = 0; i < data.length && i < series.data.length; i++) {
-            data[i] += series.data[i];
-          }
-        }
-
-        let drainSamples = 0;
-        for (let i = 0; i < data.length; i++) {
-          data[i] = Math.max(0, data[i]);
-
-          if (data[i] !== 0) {
-            drainSamples++;
-          }
-        }
-
-        const smoothing = Math.round(drainSamples / (Math.PI * 100)) * DIFFICULTY_GRAPH_SMOOTHING;
-        const graph = toChartData(
-          smoothing === 0
-            ? data
-            : standardDeviationFilter(
-              slidingAverageWindowFilter(data, Math.round(data.length / 600) * DIFFICULTY_GRAPH_SMOOTHING),
-              (Math.PI * Math.log2(DIFFICULTY_GRAPH_SMOOTHING)) / 10
-            ),
-        );
-
-        console.timeEnd('[GRAPH SMOOTHING]');
-
-        configDarker.data.datasets[0].data = graph;
-        configDarker.data.labels = graph;
-
-        configLighter.data.datasets[0].data = graph;
-        configLighter.data.labels = graph;
-
-        chartDarker.update();
-        chartLighter.update();
+        renderGraph(performance.graph);
       }
 
       const percentage = Math.max(0, Math.min(beatmap.time.live / beatmap.time.mp3Length * 100, 100));
