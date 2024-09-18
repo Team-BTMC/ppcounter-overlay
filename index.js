@@ -249,24 +249,39 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
       document.getElementById('ppMax').innerHTML = Math.round(performance.accuracy[100]).toString();
     }
     
+    let pps = document.getElementsByClassName('PPS')[0];
     let ppIfFC = document.getElementsByClassName('AlignPP PPifFC')[0];
     let ppCurrent = document.getElementsByClassName('AlignPP CurrentPP')[0];
     let ppSlash = document.getElementsByClassName('slash')[0];
+	let horizontalLine = document.getElementById('right-horizontal-line');
+	let hitsCont = document.getElementById('hits');
     
     if (state.name !== 'Play' && state.name !== 'ResultScreen') {
       const pp = document.getElementById('ppMax');
       if (pp.innerHTML !== cache.ppSS) {
         pp.innerHTML = Math.round(performance.accuracy[100]).toString();
       }
+	  horizontalLine.style.transform = 'translateY(-50px)';
+	  hitsCont.style.transform = 'translateY(-50px)';
       ppIfFC.style.transform = 'translateX(-60px)';
-      ppCurrent.style.transform = 'translateY(20px)';
-      ppSlash.style.transform = 'translateY(20px)';
+	  pps.style.transform = 'translateY(-20px)';
+	  pps.style.scale = 1.5;
+      ppCurrent.style.transform = 'translateY(100px)';
+      ppSlash.style.transform = 'translateY(100px)';
+	  horizontalLine.style.opacity = 0;
+	  hitsCont.style.opacity = 0;
       ppCurrent.style.opacity = 0;
       ppSlash.style.opacity = 0;
     } else {
+      horizontalLine.style.transform = 'translateY(0)';
+	  hitsCont.style.transform = 'translateY(0)';
       ppIfFC.style.transform = 'translateX(0)';
+	  pps.style.transform = 'translateY(0)';
+	  pps.style.scale = 1;
       ppCurrent.style.transform = 'translateY(0)';
       ppSlash.style.transform = 'translateY(0)';
+	  horizontalLine.style.opacity = 1;
+	  hitsCont.style.opacity = 1;
       ppCurrent.style.opacity = 1;
       ppSlash.style.opacity = 1;
     }
