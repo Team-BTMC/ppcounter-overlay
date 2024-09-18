@@ -281,12 +281,8 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
 
       setTimeout(() => {
         background.src = `http://127.0.0.1:24050/files/beatmap/${background_path}`;  
-        setTimeout(() => {
-          background.style.opacity = 1;
-        }, 100);
-      }, 100);
-  
-  
+        background.style.opacity = 1;
+      }, 210);
   
       const image = new Image();
       image.src = `http://127.0.0.1:24050/files/beatmap/${background_path}`;
