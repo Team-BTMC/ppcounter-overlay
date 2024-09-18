@@ -256,7 +256,7 @@ svg {
 
 .AlignPP span {
     font-size: 20px;
-    width: max-content;
+    width: auto;
     text-align: center;
     margin: 0;
     color: #ffffff;
@@ -327,6 +327,7 @@ svg {
 
 .odometer.odometer-animating-down .odometer-animating .odometer-ribbon-inner {
     transform: translateY(0);
+	width: auto;
 }
 
 .dashed-line-vertical {
