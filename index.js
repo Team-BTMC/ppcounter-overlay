@@ -154,7 +154,7 @@ const h0 = new CountUp('h0', 0, 0, 0, .5, { useEasing: true, useGrouping: true, 
 
 const channels = new Set(["aim", "speed"]);
 
-socket.api_v2(({play, beatmap, directPath, folders, performance, state}) => {
+socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsScreen}) => {
   try {
     if (chartDarker !== undefined && chartLighter !== undefined && chartProgress !== undefined) {
       const dataString = JSON.stringify(performance.graph);
@@ -167,26 +167,28 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state}) => {
       const percentage = Math.max(0, Math.min(beatmap.time.live / beatmap.time.mp3Length * 100, 100));
       chartProgress.style.width = String(percentage) + "%";
     }
+	
+	let pp = state.name === 'ResultScreen' ? resultsScreen.pp : play.pp;
+	let hits = state.name === 'ResultScreen' ? resultsScreen.hits : play.hits;
 
-    if (cache.h100 !== play.hits['100']) {
-      cache.h100 = play.hits['100'];
-      h100.update(play.hits['100']);
-      document.getElementById('h100').innerHTML = play.hits['100'];
+    if (cache.h100 !== hits['100']) {
+      cache.h100 = state.name = hits['100'];
+      h100.update(hits['100']);
     }
 
-    if (cache.h50 !== play.hits['50']) {
-      cache.h50 = play.hits['50'];
-      h50.update(play.hits['50']);
+    if (cache.h50 !== hits['50']) {
+      cache.h50 = hits['50'];
+      h50.update(hits['50']);
     }
 
-    if (cache.h0 !== play.hits['0']) {
-      cache.h0 = play.hits['0'];
-      h0.update(play.hits['0']);
+    if (cache.h0 !== hits['0']) {
+      cache.h0 = hits['0'];
+      h0.update(hits['0']);
     }
 
-    if (cache.pp !== Math.round(play.pp.current)) {
-      cache.pp = Math.round(play.pp.current);
-      document.getElementById('pp').innerHTML = Math.round(play.pp.current);
+    if (cache.pp !== Math.round(pp.current)) {
+      cache.pp = Math.round(pp.current);
+      document.getElementById('pp').innerHTML = Math.round(pp.current);
     }
 
     if (cache.artist !== beatmap.artist || cache.title !== beatmap.title) {
@@ -239,9 +241,9 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state}) => {
       document.getElementById('srCont').style.backgroundColor = getDiffColour(cache.maxSR);
     }
 
-    if ((state.name === 'Play' || state.name === 'ResultScreen') && cache.ppFC !== play.pp.fc) {
-      cache.ppFC = play.pp.fc;
-      document.getElementById('ppMax').innerHTML = Math.round(play.pp.fc).toString();
+    if ((state.name === 'Play' || state.name === 'ResultScreen') && cache.ppFC !== pp.fc) {
+      cache.ppFC = pp.fc;
+      document.getElementById('ppMax').innerHTML = Math.round(pp.fc).toString();
     } else if (cache.ppSS !== performance.accuracy[100]) {
       cache.ppSS = performance.accuracy[100];
       document.getElementById('ppMax').innerHTML = Math.round(performance.accuracy[100]).toString();
