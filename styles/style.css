@@ -44,6 +44,7 @@
     border-radius: 0 0 0 10px;
     z-index: -1;
     object-fit: cover;
+	transition: opacity ease-in-out 200ms;
 }
 
 .bg-overlay {
@@ -198,6 +199,7 @@ svg {
     width: 100%;
     text-align: center;
     line-height: 15px;
+    transition: ease-in-out 500ms;
 }
 
 .Hits .hit100, .Hits .hit50, .Hits .hit0 {
@@ -240,6 +242,7 @@ svg {
     width: 100%;
     margin-top: 8px;
 	mask: linear-gradient(to top, transparent 5%, black 30%, black 70%, transparent 95%);
+	transition: ease-in-out 500ms;
 }
 
 .AlignPP {
@@ -255,7 +258,7 @@ svg {
 
 .AlignPP span {
     font-size: 20px;
-    width: max-content;
+    width: auto;
     text-align: center;
     margin: 0;
     color: #ffffff;
@@ -326,6 +329,7 @@ svg {
 
 .odometer.odometer-animating-down .odometer-animating .odometer-ribbon-inner {
     transform: translateY(0);
+	width: auto;
 }
 
 .dashed-line-vertical {
@@ -346,4 +350,5 @@ svg {
     width: 216px;
     border: 2px dashed var(--dashedLineColor);
     z-index: 10;
+    transition: ease-in-out 500ms;
 }

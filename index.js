@@ -154,7 +154,7 @@ const h0 = new CountUp('h0', 0, 0, 0, .5, { useEasing: true, useGrouping: true, 
 
 const channels = new Set(["aim", "speed"]);
 
-socket.api_v2(({play, beatmap, directPath, folders, performance, state}) => {
+socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsScreen}) => {
   try {
     if (chartDarker !== undefined && chartLighter !== undefined && chartProgress !== undefined) {
       const dataString = JSON.stringify(performance.graph);
@@ -167,26 +167,28 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state}) => {
       const percentage = Math.max(0, Math.min(beatmap.time.live / beatmap.time.mp3Length * 100, 100));
       chartProgress.style.width = String(percentage) + "%";
     }
+	
+	let pp = state.name === 'ResultScreen' ? resultsScreen.pp : play.pp;
+	let hits = state.name === 'ResultScreen' ? resultsScreen.hits : play.hits;
 
-    if (cache.h100 !== play.hits['100']) {
-      cache.h100 = play.hits['100'];
-      h100.update(play.hits['100']);
-      document.getElementById('h100').innerHTML = play.hits['100'];
+    if (cache.h100 !== hits['100']) {
+      cache.h100 = state.name = hits['100'];
+      h100.update(hits['100']);
     }
 
-    if (cache.h50 !== play.hits['50']) {
-      cache.h50 = play.hits['50'];
-      h50.update(play.hits['50']);
+    if (cache.h50 !== hits['50']) {
+      cache.h50 = hits['50'];
+      h50.update(hits['50']);
     }
 
-    if (cache.h0 !== play.hits['0']) {
-      cache.h0 = play.hits['0'];
-      h0.update(play.hits['0']);
+    if (cache.h0 !== hits['0']) {
+      cache.h0 = hits['0'];
+      h0.update(hits['0']);
     }
 
-    if (cache.pp !== Math.round(play.pp.current)) {
-      cache.pp = Math.round(play.pp.current);
-      document.getElementById('pp').innerHTML = Math.round(play.pp.current);
+    if (cache.pp !== Math.round(pp.current)) {
+      cache.pp = Math.round(pp.current);
+      document.getElementById('pp').innerHTML = Math.round(pp.current);
     }
 
     if (cache.artist !== beatmap.artist || cache.title !== beatmap.title) {
@@ -239,32 +241,47 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state}) => {
       document.getElementById('srCont').style.backgroundColor = getDiffColour(cache.maxSR);
     }
 
-    if ((state.name === 'Play' || state.name === 'ResultScreen') && cache.ppFC !== play.pp.fc) {
-      cache.ppFC = play.pp.fc;
-      document.getElementById('ppMax').innerHTML = Math.round(play.pp.fc).toString();
+    if ((state.name === 'Play' || state.name === 'ResultScreen') && cache.ppFC !== pp.fc) {
+      cache.ppFC = pp.fc;
+      document.getElementById('ppMax').innerHTML = Math.round(pp.fc).toString();
     } else if (cache.ppSS !== performance.accuracy[100]) {
       cache.ppSS = performance.accuracy[100];
       document.getElementById('ppMax').innerHTML = Math.round(performance.accuracy[100]).toString();
     }
     
+    let pps = document.getElementsByClassName('PPS')[0];
     let ppIfFC = document.getElementsByClassName('AlignPP PPifFC')[0];
     let ppCurrent = document.getElementsByClassName('AlignPP CurrentPP')[0];
     let ppSlash = document.getElementsByClassName('slash')[0];
+	let horizontalLine = document.getElementById('right-horizontal-line');
+	let hitsCont = document.getElementById('hits');
     
     if (state.name !== 'Play' && state.name !== 'ResultScreen') {
       const pp = document.getElementById('ppMax');
       if (pp.innerHTML !== cache.ppSS) {
         pp.innerHTML = Math.round(performance.accuracy[100]).toString();
       }
+	  horizontalLine.style.transform = 'translateY(-50px)';
+	  hitsCont.style.transform = 'translateY(-50px)';
       ppIfFC.style.transform = 'translateX(-60px)';
-      ppCurrent.style.transform = 'translateY(20px)';
-      ppSlash.style.transform = 'translateY(20px)';
+	  pps.style.transform = 'translateY(-20px)';
+	  pps.style.scale = 1.5;
+      ppCurrent.style.transform = 'translateY(100px)';
+      ppSlash.style.transform = 'translateY(100px)';
+	  horizontalLine.style.opacity = 0;
+	  hitsCont.style.opacity = 0;
       ppCurrent.style.opacity = 0;
       ppSlash.style.opacity = 0;
     } else {
+      horizontalLine.style.transform = 'translateY(0)';
+	  hitsCont.style.transform = 'translateY(0)';
       ppIfFC.style.transform = 'translateX(0)';
+	  pps.style.transform = 'translateY(0)';
+	  pps.style.scale = 1;
       ppCurrent.style.transform = 'translateY(0)';
       ppSlash.style.transform = 'translateY(0)';
+	  horizontalLine.style.opacity = 1;
+	  hitsCont.style.opacity = 1;
       ppCurrent.style.opacity = 1;
       ppSlash.style.opacity = 1;
     }
@@ -279,12 +296,8 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state}) => {
 
       setTimeout(() => {
         background.src = `http://127.0.0.1:24050/files/beatmap/${background_path}`;  
-        setTimeout(() => {
-          background.style.opacity = 1;
-        }, 100);
-      }, 100);
-  
-  
+        background.style.opacity = 1;
+      }, 210);
   
       const image = new Image();
       image.src = `http://127.0.0.1:24050/files/beatmap/${background_path}`;
