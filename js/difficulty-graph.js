@@ -173,17 +173,19 @@ function renderIntervalCurved(array, start, end, out) {
     }
 
     const count = end - start;
-    const last = array[end] ?? array[end - 1];
-    const center = count; // todo 2 = max smoothness; 2+ = less smooth
+    const last = array[end] ?? 0;
+    const center = 2; // todo 0 = no smooth; 2 = max smoothness; 2+ = less smooth
 
-    const p0 = point(start, array[start]);
-    const p1 = point(start + center, array[start]);
+    const p0 = point(start, array[start] ?? 0);
+    const p1 = point(start + center, array[start] ?? 0);
     const p2 = point(end - center, last);
     const p3 = point(end, last);
 
     const resolution = count * 2;
 
     let lastCurvePoint = p0;
+
+    start = Math.max(0, start);
     out[start] = p0.y;
 
     for (let i = 1, k = start + 1; i <= resolution && k < end; i++) {
@@ -300,6 +302,18 @@ export function standardDeviationFilter(array, standardDeviationFactor) {
     return ret;
 }
 
+function max(array) {
+    let m = Number.NEGATIVE_INFINITY;
+
+    for (let i = 0; i < array.length; i++) {
+        if (m < array[i]) {
+            m = array[i];
+        }
+    }
+
+    return m;
+}
+
 /**
  * @param {ArrayLike<number>} array
  * @return {{ derivatives: Float64Array, average: number }}
@@ -381,7 +395,6 @@ export function derivativeSmoothingFilter(array, derivativeFactor, maxSegmentSiz
     const { derivatives, average } = flatDerivative(array);
 
     const factoredAverage = average * derivativeFactor;
-
     let left = nextDerivative(derivatives, -1);
     if (left !== 0) {
         renderIntervalCurved(array, 0, left + 1, ret);
@@ -391,7 +404,14 @@ export function derivativeSmoothingFilter(array, derivativeFactor, maxSegmentSiz
         let right = nextDerivative(derivatives, left);
 
         while (right >= 0) {
-            if (Math.abs(derivatives[right]) < factoredAverage && right - left < maxSegmentSize) {
+            if (derivatives[left] === 0) {
+                ret[left] = array[left];
+                left = right;
+                continue left;
+            }
+
+            const d = Math.abs(derivatives[right]);
+            if (d < factoredAverage && right - left < maxSegmentSize) {
                 right = nextDerivative(derivatives, right);
                 continue;
             }
@@ -406,6 +426,254 @@ export function derivativeSmoothingFilter(array, derivativeFactor, maxSegmentSiz
         break;
     }
 
+    return ret;
+}
+
+/**
+ * @typedef {{ derivative: number, length: number }} FunctionInterval
+ *
+ * @template T
+ * @typedef {{ pointer: ArrayLike<T>, length: number }} FatPointer
+ */
+
+// todo change FunctionInterval[] to statically sized arrays with custom length (^ FatPointer<FunctionInterval>)
+
+/**
+ * All derivations are modification of formula:
+ *     d(i) = (a[i + 1] - a[i]) / 2
+ * Modified formula:
+ *     md(i) = d(i) * 2 = ((a[i + 1] - a[i]) / 2) * 2 = a[i + 1] - a[i]
+ * When talking about taking derivative at point. The function modified derivation function is used (md). It is used
+ * because it yielded better out-of-the-box results
+ *
+ * @param {ArrayLike<number>} array
+ * @return {{ derivatives: FunctionInterval[], average: number }}
+ */
+function differentiate(array) {
+    if (array.length === 0) {
+        return {
+            derivatives: [],
+            average: 0
+        };
+    }
+
+    /** @type {FunctionInterval[]} */
+    const derivatives = [];
+    const percent = max(array) / 100;
+
+    // Starting at a[0] to precalculate derivation: a[0] - a[-1] = a[0] - 0 = a[0]
+    let last = array[0];
+    let start = -1;
+
+    // Average calculation could be done after the derivatives of intervals... but we can just keep track of derivations
+    // during generation :)
+    let sum = 0;
+
+    for (let i = 0; i < array.length - 1; i++) {
+        // round(x / 1%) * 1% removes tiny changes that should be interpreted as constant monotonicity
+        const d = Math.round((array[i + 1] - array[i]) / percent) * percent;
+
+        // Same monotonicity => merge with last
+        if (Math.sign(last) === Math.sign(d)) {
+            last += d;
+            continue;
+        }
+
+        // Different monotonicity. Add last interval
+        derivatives.push({
+            derivative: last,
+            length: i - start
+        });
+
+        sum += Math.abs(last);
+
+        // and create a new interval
+        last = d;
+        start = i;
+    }
+
+    // Repeat loops body for last element in array. Last connection will be with x-axis (zero)
+    const d = Math.round((0 - array[array.length - 1]) / percent) * percent;
+
+    if (Math.sign(last) === Math.sign(d)) {
+        // Merge with last interval and add it
+        derivatives.push({
+            derivative: last + d,
+            length: array.length - start
+        });
+
+        sum += Math.abs(last);
+    } else {
+        // Intervals don't match in monotonicity. Add `last` interval and `d` interval
+        derivatives.push({
+            derivative: last,
+            length: array.length - 1 - start
+        });
+
+        sum += Math.abs(last);
+
+        derivatives.push({
+            derivative: d,
+            length: 1
+        });
+
+        sum += Math.abs(d);
+    }
+
+    return {
+        derivatives,
+        average: sum / derivatives.length
+    };
+}
+
+/**
+ * Let A be an array of intervals.
+ * Let i be an index into A.
+ * Let (Interval, Interval) -> (Interval); (x, y) -> (x + y) be merge function.
+ *
+ * Then merge(A(i), A(i + 1)) that satisfy conditions:
+ *
+ * - derivative(A(i + 1)) < λ
+ * - |A(i)| + |A(i + 1)| <= maxIntervalLength
+ *
+ * @param {FunctionInterval[]} intervals
+ * @param {number} lambda λ
+ * @param {number} maxIntervalLength
+ * @return {FunctionInterval[]}
+ */
+function mergeIntervals(intervals, lambda, maxIntervalLength) {
+    if (intervals.length === 0) {
+        return [];
+    }
+
+    /** @type {FunctionInterval[]} */
+    const ret = [intervals[0]];
+
+    for (let i = 1; i < intervals.length; i++) {
+        const outsideOfLambdaBounds = Math.abs(intervals[i].derivative) > lambda;
+
+        const last = ret[ret.length - 1];
+        const maxIntervalLengthOverflow = last.length + intervals[i].length > maxIntervalLength;
+
+        if (outsideOfLambdaBounds || maxIntervalLengthOverflow) {
+            ret.push(intervals[i]);
+            continue;
+        }
+
+        // Merge with last in array
+        last.length += intervals[i].length;
+        last.derivative += intervals[i].derivative;
+    }
+
+    return ret;
+}
+
+/**
+ * Definition: Start -> point at x = <code>arrayIndex</code> and y = <code>array[arrayIndex]</code>
+ *
+ * Definition: Point -> point at x = i and y = <code>array[i]</code>; i > <code>arrayIndex</code>
+ *
+ * Propagate tries to extend to next point that satisfies these requirements:
+ *
+ *     - Point is inside a circle around Start with given radius
+ *     - sign(derivative(Start, Point)) = monotonicity
+ *
+ * If these requirements are met, the function will return Point
+ *
+ * @param {Point} start
+ * @param {ArrayLike<number>} array
+ * @param {number} arrayIndex
+ * @param {FunctionInterval[]} intervals
+ * @param {number} intervalIndex
+ * @param {number} radius
+ * @param {-1 | 0 | 1} monotonicity
+ * @return {{ interval: number, point: number }}
+ */
+function propagate(start, array, arrayIndex, intervals, intervalIndex, radius, monotonicity) {
+    const r2 = radius * radius;
+    let end = arrayIndex + intervals[intervalIndex].length;
+
+    for (let i = intervalIndex + 1; i < intervals.length; i++) {
+        if ((end - start.x) > radius) {
+            break;
+        }
+
+        const dx = end - start.x;
+        const dy = array[end] - start.y;
+        const currentDistance2 = dx * dx + dy * dy;
+
+        const inRadius = currentDistance2 <= r2;
+        const sameMonotonicity = monotonicity === Math.sign(dy);
+
+        if (inRadius && sameMonotonicity) {
+            return {
+                point: end,
+                interval: i
+            };
+        }
+
+        end += intervals[i].length;
+    }
+
+    return {
+        point: start.x,
+        interval: intervalIndex
+    };
+}
+
+/**
+ * @param {ArrayLike<number>} array
+ * @param {number} differentialFactor Should be non-negative integer
+ * @param {number} maxIntervalLength
+ * @return {Float64Array}
+ */
+export function differentialPropagationFilter(array, differentialFactor, maxIntervalLength) {
+    if (differentialFactor <= 0) {
+        // No smoothing => return raw data
+        return new Float64Array(array);
+    }
+
+    const ret = new Float64Array(array.length);
+
+    const { derivatives, average } = differentiate(array);
+    const factoredAverage = average * differentialFactor;
+
+    const intervals = mergeIntervals(derivatives, factoredAverage, factoredAverage);
+
+    // Start and end are index into the raw data array. Sum of intervals lengths is exactly array's length + 2, because
+    // zeros are added to start and end of the raw array
+    let start = -1;
+    let end = intervals[0].length - 1;
+    let monotonicity = Math.sign(intervals[0].derivative);
+
+    let iteration = 0;
+    for (let i = 0; i < intervals.length - 1;) {
+        const s = point(start, array[start] ?? 0);
+        const propagation = propagate(s, array, end, intervals, i, factoredAverage, monotonicity);
+
+        if (iteration++ > intervals.length * 2) {
+            // If there is an edge case for propagation and the for loop turns into while(true)...
+            console.log(propagation);
+            throw new Error("Maximum iteration limit reached");
+        }
+
+        const noPropagationPoint = propagation.point === s.x;
+        const maxIntervalLengthOverflow = propagation.point - start > maxIntervalLength;
+
+        if (noPropagationPoint || maxIntervalLengthOverflow) {
+            renderIntervalCurved(array, start, end, ret);
+            start = end;
+            end += intervals[i + 1].length;
+            monotonicity = Math.sign(intervals[i + 1].derivative);
+            i++;
+            continue;
+        }
+
+        end = propagation.point;
+        i = propagation.interval;
+    }
+
+    renderIntervalCurved(array, start, end, ret);
     return ret;
 }
 
@@ -470,7 +738,7 @@ export function createChartConfig(backgroundColor) {
             },
             elements: {
                 line: {
-                    tension: 0.0,
+                    tension: 0.4,
                     cubicInterpolationMode: 'monotone'
                 },
                 point: {
