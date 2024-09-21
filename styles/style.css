@@ -15,8 +15,6 @@
 
 * {
     font-family: 'BalooBold';
-    font-size: 20px;
-    color: white;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -27,6 +25,7 @@
     display: flex;
     flex-direction: row;
     width: 569px;
+    color: white;
 }
 
 .Left {
@@ -42,9 +41,10 @@
     left: 5px;
     width: calc(100%); 
     height: calc(100% - 5px);
-    border-radius: 0 0 0 15px;
+    border-radius: 0 0 0 10px;
     z-index: -1;
     object-fit: cover;
+	transition: opacity ease-in-out 200ms;
 }
 
 .bg-overlay {
@@ -53,7 +53,7 @@
     left: 5px;
     width: calc(100%);
     height: calc(100% - 5px);
-    border-radius: 0 0 0 15px;
+    border-radius: 0 0 0 10px;
     background: rgba(0, 0, 0, 0.66); 
     z-index: -1;
 }
@@ -98,6 +98,7 @@
 }
 
 .ArtistSong {
+    font-size: 20px;
     margin-top: 0;
 }
 
@@ -111,7 +112,7 @@
 
 .MapInfo {
     display: flex;
-    margin-left: 30px;
+    margin-left: 14px;
     margin-top: -3px;
     justify-content: space-between;
     gap: 50px;
@@ -119,14 +120,42 @@
 
 .SR {
     display: flex;
-    gap: 10px;
-    margin-top: -2px
+    min-width: 85px;
+    justify-content: center;
+    gap: 5px;
+    height: 26px;
+    margin-top: 2px;
+	padding-left: 5px;
+	padding-right: 5px;
+    border-radius: 20px;
+	transition: ease-in-out 300ms;
+    -webkit-filter: drop-shadow(-2px 2px 4px rgba(0,0,0,0.7));
+    -moz-filter: drop-shadow(-2px 2px 4px rgba(0,0,0,0.7));
+    -ms-filter: drop-shadow(-2px 2px 4px rgba(0,0,0,0.7));
+    -o-filter: drop-shadow(-2px 2px 4px rgba(0,0,0,0.7));
 }
 
-.SR img {
+
+.SR #sr {
+    font-size: 18px;
+    width: 40px;
+    height: 30px;
+    margin-left: 5px;
+    margin-top: -1px;
+	transition: ease-in-out 300ms;
+	mask: linear-gradient(to top, transparent 5%, black 30%, black 70%, transparent 95%);
+}
+
+.SR #srStar {
     margin-top: 5px;
-    width: 20px;
-    height: 20px;
+    margin-right: 5px;
+    margin-top: 5px;
+    width: 16px;
+    height: 16px;
+}
+
+svg {
+	transition: ease-in-out 300ms;
 }
 
 .MapStatistics {
@@ -136,6 +165,7 @@
     width: 100%;
     text-align: center;
     line-height: 15px;
+    font-size: 14px !important;
 }
 
 .small {
@@ -147,6 +177,8 @@
 }
 
 .BPM span {
+    transition: ease-in-out 300ms;
+    font-size: 14px !important;
     color: #FEFFB8;
 }
 
@@ -167,6 +199,7 @@
     width: 100%;
     text-align: center;
     line-height: 15px;
+    transition: ease-in-out 500ms;
 }
 
 .Hits .hit100, .Hits .hit50, .Hits .hit0 {
@@ -207,19 +240,25 @@
     justify-content: space-evenly;
     position: relative;
     width: 100%;
-    margin-top: 6px;
+    margin-top: 8px;
+	mask: linear-gradient(to top, transparent 5%, black 30%, black 70%, transparent 95%);
+	transition: ease-in-out 500ms;
 }
 
 .AlignPP {
     display: flex;
+    font-size: 20px;
     flex: 10;
     gap: 2px;
     flex-direction: row;
     justify-content: center;
     align-items: center;
+	transition: ease-in-out 500ms;
 }
 
 .AlignPP span {
+    font-size: 20px;
+    width: auto;
     text-align: center;
     margin: 0;
     color: #ffffff;
@@ -230,6 +269,7 @@
     font-size: 20px;
     margin-top: 4px;
     color: #ffffff;
+	transition: ease-in-out 500ms;
 }
 
 .odometer {
@@ -237,8 +277,8 @@
     vertical-align: middle;
     position: relative;
     font-family: 'BalooBold';
-    font-size: 24px;
-    color: white;
+    font-size: inherit;
+    color: inherit;
 }
 
 .odometer .odometer-digit {
@@ -289,6 +329,7 @@
 
 .odometer.odometer-animating-down .odometer-animating .odometer-ribbon-inner {
     transform: translateY(0);
+	width: auto;
 }
 
 .dashed-line-vertical {
@@ -309,4 +350,5 @@
     width: 216px;
     border: 2px dashed var(--dashedLineColor);
     z-index: 10;
+    transition: ease-in-out 500ms;
 }

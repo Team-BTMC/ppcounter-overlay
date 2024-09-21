@@ -59,10 +59,23 @@
 					</div>
 				</div>
 				<div class="MapInfo">
-					<div class="SR">
+					<div
+						class="SR"
+						id="srCont"
+					>
 						<!-- Code for Starrating -->
-						<span id="sr">NaN</span>
-						<img src="assets/star.png" />
+						<span
+							id="sr"
+							class="odometer"
+							>NaN</span
+						>
+						<object
+							id="srStar"
+							data="assets/star.svg"
+							type="image/svg+xml"
+							width="20"
+							height="20"
+						></object>
 					</div>
 					<div class="MapStatistics">
 						<div class="BPM">
@@ -70,7 +83,7 @@
 							<p class="small">BPM</p>
 							<span
 								id="bpm"
-								class="small"
+								class="small odometer"
 								>NaN</span
 							>
 						</div>
@@ -114,7 +127,7 @@
 				</div>
 			</div>
 			<div class="Right">
-				<div class="Hits">
+				<div class="Hits" id="hits">
 					<div class="hit100">
 						<!-- Code for hit 100 -->
 						<span id="h100">0</span>
@@ -154,7 +167,7 @@
 				</div>
 			</div>
 			<div class="dashed-line-vertical"></div>
-			<div class="dashed-line-horizontal"></div>
+			<div class="dashed-line-horizontal" id="right-horizontal-line"></div>
 		</div>
 
 		<div class="difficulty-graph">
@@ -175,6 +188,7 @@
 		<script src="js/odometr.js"></script>
 		<script src="js/countUp.js"></script>
 		<script src="js/Chart.min.js"></script>
+		<script src="js/d3.v7.min.js"></script>
 
 		<!--        YOUR COUNTER LOGIC FILES        -->
 		<script

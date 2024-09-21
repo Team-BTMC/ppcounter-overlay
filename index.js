@@ -39,8 +39,6 @@ let chartDarker;
 let chartLighter;
 let chartProgress;
 
-
-
 function renderGraph(graphData) {
   // Better be sure. In case someone forgets
   if (chartDarker === undefined || chartLighter === undefined || chartProgress === undefined) {
@@ -173,9 +171,7 @@ const h0 = new CountUp('h0', 0, 0, 0, .5, { useEasing: true, useGrouping: true, 
 
 const channels = new Set(["aim", "speed"]);
 
-
-
-socket.api_v2(({ play, beatmap, directPath, folders, performance}) => {
+socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsScreen}) => {
   try {
     if (chartDarker !== undefined && chartLighter !== undefined && chartProgress !== undefined) {
       const dataString = JSON.stringify(performance.graph);
@@ -189,25 +185,27 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance}) => {
       chartProgress.style.width = String(percentage) + "%";
     }
 
-    if (cache.h100 !== play.hits['100']) {
-      cache.h100 = play.hits['100'];
-      h100.update(play.hits['100']);
-      document.getElementById('h100').innerHTML = play.hits['100'];
+	let pp = state.name === 'ResultScreen' ? resultsScreen.pp : play.pp;
+	let hits = state.name === 'ResultScreen' ? resultsScreen.hits : play.hits;
+
+    if (cache.h100 !== hits['100']) {
+      cache.h100 = state.name = hits['100'];
+      h100.update(hits['100']);
     }
 
-    if (cache.h50 !== play.hits['50']) {
-      cache.h50 = play.hits['50'];
-      h50.update(play.hits['50']);
+    if (cache.h50 !== hits['50']) {
+      cache.h50 = hits['50'];
+      h50.update(hits['50']);
     }
 
-    if (cache.h0 !== play.hits['0']) {
-      cache.h0 = play.hits['0'];
-      h0.update(play.hits['0']);
+    if (cache.h0 !== hits['0']) {
+      cache.h0 = hits['0'];
+      h0.update(hits['0']);
     }
 
-    if (cache.pp !== Math.round(play.pp.current)) {
-      cache.pp = Math.round(play.pp.current);
-      document.getElementById('pp').innerHTML = Math.round(play.pp.current);
+    if (cache.pp !== Math.round(pp.current)) {
+      cache.pp = Math.round(pp.current);
+      document.getElementById('pp').innerHTML = Math.round(pp.current);
     }
 
     if (cache.artist !== beatmap.artist || cache.title !== beatmap.title) {
@@ -252,12 +250,57 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance}) => {
 
     if (cache.maxSR !== beatmap.stats.stars.total) {
       cache.maxSR = beatmap.stats.stars.total;
-      document.getElementById('sr').innerHTML = beatmap.stats.stars.total;
+      let sr = document.getElementById('sr');
+      let srTextColor = beatmap.stats.stars.total >= 6.5 ? '#fd5' : '#000000';
+      sr.innerHTML = beatmap.stats.stars.total;
+      sr.style.color = srTextColor;
+      document.getElementById('srStar').contentDocument.getElementsByTagName('svg')[0].style.fill = srTextColor;
+      document.getElementById('srCont').style.backgroundColor = getDiffColour(cache.maxSR);
     }
 
-    if (cache.ppFC !== play.pp.fc) {
-      cache.ppFC = play.pp.fc;
-      document.getElementById('ppMax').innerHTML = Math.round(play.pp.fc);;
+    if ((state.name === 'Play' || state.name === 'ResultScreen') && cache.ppFC !== pp.fc) {
+      cache.ppFC = pp.fc;
+      document.getElementById('ppMax').innerHTML = Math.round(pp.fc).toString();
+    } else if (cache.ppSS !== performance.accuracy[100]) {
+      cache.ppSS = performance.accuracy[100];
+      document.getElementById('ppMax').innerHTML = Math.round(performance.accuracy[100]).toString();
+    }
+
+    let pps = document.getElementsByClassName('PPS')[0];
+    let ppIfFC = document.getElementsByClassName('AlignPP PPifFC')[0];
+    let ppCurrent = document.getElementsByClassName('AlignPP CurrentPP')[0];
+    let ppSlash = document.getElementsByClassName('slash')[0];
+	let horizontalLine = document.getElementById('right-horizontal-line');
+	let hitsCont = document.getElementById('hits');
+
+    if (state.name !== 'Play' && state.name !== 'ResultScreen') {
+      const pp = document.getElementById('ppMax');
+      if (pp.innerHTML !== cache.ppSS) {
+        pp.innerHTML = Math.round(performance.accuracy[100]).toString();
+      }
+	  horizontalLine.style.transform = 'translateY(-50px)';
+	  hitsCont.style.transform = 'translateY(-50px)';
+      ppIfFC.style.transform = 'translateX(-60px)';
+	  pps.style.transform = 'translateY(-20px)';
+	  pps.style.scale = 1.5;
+      ppCurrent.style.transform = 'translateY(100px)';
+      ppSlash.style.transform = 'translateY(100px)';
+	  horizontalLine.style.opacity = 0;
+	  hitsCont.style.opacity = 0;
+      ppCurrent.style.opacity = 0;
+      ppSlash.style.opacity = 0;
+    } else {
+      horizontalLine.style.transform = 'translateY(0)';
+	  hitsCont.style.transform = 'translateY(0)';
+      ppIfFC.style.transform = 'translateX(0)';
+	  pps.style.transform = 'translateY(0)';
+	  pps.style.scale = 1;
+      ppCurrent.style.transform = 'translateY(0)';
+      ppSlash.style.transform = 'translateY(0)';
+	  horizontalLine.style.opacity = 1;
+	  hitsCont.style.opacity = 1;
+      ppCurrent.style.opacity = 1;
+      ppSlash.style.opacity = 1;
     }
 
     if (cache['menu.bm.path.full'] != directPath.beatmapBackground) {
@@ -270,12 +313,8 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance}) => {
 
       setTimeout(() => {
         background.src = `http://127.0.0.1:24050/files/beatmap/${background_path}`;  
-        setTimeout(() => {
-          background.style.opacity = 1;
-        }, 100);
-      }, 100);
-  
-  
+        background.style.opacity = 1;
+      }, 210);
   
       const image = new Image();
       image.src = `http://127.0.0.1:24050/files/beatmap/${background_path}`;
@@ -300,16 +339,16 @@ window.addEventListener('load', () => {
   );
 });
 
-function reset(reset) {
-  let clones = document.querySelectorAll(`.${reset}.clone`);
+function reset(item) {
+  let clones = document.querySelectorAll(`.${item}.clone`);
 
   Array.from(clones).forEach(clone => {
     clone.remove(); 
   });
 
-  if (animationId0 && reset === 'title-text') {
+  if (animationId0 && item === 'title-text') {
     cancelAnimationFrame(animationId0);
-  } else if (animationId1 && reset === 'diff-text') {
+  } else if (animationId1 && item === 'diff-text') {
     cancelAnimationFrame(animationId1);
   }
 }
@@ -321,11 +360,13 @@ function checkAndAnimateScroll(box, text, picker) {
       clone.style.left = `${text.scrollWidth + 20}px`;
 
       box.appendChild(clone);
+      box.style.mask = 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)';
 
       startScroll(text, clone, picker);
   }
   else {
     text.style.left = '0px';
+    box.style.mask = '';
   }
 }
 
@@ -370,4 +411,17 @@ function hexToRgbA(hex, alpha = 1) {
       return 'rgba(' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + ',' + alpha + ')';
   }
   throw new Error('Bad Hex');
+}
+
+// Taken from osu-web
+const difficultyColourSpectrum = d3.scaleLinear()
+  .domain([0.1, 1.25, 2, 2.5, 3.3, 4.2, 4.9, 5.8, 6.7, 7.7, 9])
+  .clamp(true)
+  .range(['#4290FB', '#4FC0FF', '#4FFFD5', '#7CFF4F', '#F6F05C', '#FF8068', '#FF4E6F', '#C645B8', '#6563DE', '#18158E', '#000000'])
+  .interpolate(d3.interpolateRgb.gamma(2.2));
+
+function getDiffColour(rating) {
+  if (rating < 0.1) return '#AAAAAA';
+  if (rating >= 9) return '#000000';
+  return difficultyColourSpectrum(rating);
 }
