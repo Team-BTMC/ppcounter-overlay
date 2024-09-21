@@ -173,7 +173,7 @@ function renderIntervalCurved(array, start, end, out) {
     }
 
     const count = end - start;
-    const last = array[end] ?? 0;
+    const last = array[end] ?? array[end - 1];
     const center = 2; // todo 0 = no smooth; 2 = max smoothness; 2+ = less smooth
 
     const p0 = point(start, array[start] ?? 0);
@@ -587,9 +587,10 @@ function mergeIntervals(intervals, lambda, maxIntervalLength) {
  * @param {number} intervalIndex
  * @param {number} radius
  * @param {-1 | 0 | 1} monotonicity
+ * @param {number} maximum
  * @return {{ interval: number, point: number }}
  */
-function propagate(start, array, arrayIndex, intervals, intervalIndex, radius, monotonicity) {
+function propagate(start, array, arrayIndex, intervals, intervalIndex, radius, monotonicity, maximum) {
     const r2 = radius * radius;
     let end = arrayIndex + intervals[intervalIndex].length;
 
@@ -600,6 +601,16 @@ function propagate(start, array, arrayIndex, intervals, intervalIndex, radius, m
 
         const dx = end - start.x;
         const dy = array[end] - start.y;
+
+        // Peak preserving. If there is increasing greater than 10% of height of maximum. Propagate to that point
+        if (dy > maximum * 0.1) {
+            console.log(array[end] - start.y);
+            return {
+                point: end,
+                interval: i
+            };
+        }
+
         const currentDistance2 = dx * dx + dy * dy;
 
         const inRadius = currentDistance2 <= r2;
@@ -635,6 +646,7 @@ export function differentialPropagationFilter(array, differentialFactor, maxInte
 
     const ret = new Float64Array(array.length);
 
+    const maximum = max(array);
     const { derivatives, average } = differentiate(array);
     const factoredAverage = average * differentialFactor;
 
@@ -649,7 +661,7 @@ export function differentialPropagationFilter(array, differentialFactor, maxInte
     let iteration = 0;
     for (let i = 0; i < intervals.length - 1;) {
         const s = point(start, array[start] ?? 0);
-        const propagation = propagate(s, array, end, intervals, i, factoredAverage, monotonicity);
+        const propagation = propagate(s, array, end, intervals, i, factoredAverage, monotonicity, maximum);
 
         if (iteration++ > intervals.length * 2) {
             // If there is an edge case for propagation and the for loop turns into while(true)...
@@ -708,6 +720,8 @@ export function slidingAverageWindowFilter(array, windowSize) {
 }
 
 /**
+ * Turn filter output to Chart.js input since Chart.js does not like statically typed array...
+ *
  * @param {Float64Array} filterOutput
  * @return {number[]}
  */
