@@ -143,6 +143,7 @@
     margin-left: 5px;
     margin-top: -1px;
 	transition: ease-in-out 300ms;
+	-webkit-mask: linear-gradient(to top, transparent 5%, black 30%, black 70%, transparent 95%);
 	mask: linear-gradient(to top, transparent 5%, black 30%, black 70%, transparent 95%);
 }
 
@@ -174,6 +175,11 @@ svg {
 
 .BPM p {
     color: #FEFFB8;
+}
+
+.BPM #bpm {
+    -webkit-mask: linear-gradient(to top, transparent 5%, black 20%, black 80%, transparent 95%);
+    mask: linear-gradient(to top, transparent 5%, black 20%, black 80%, transparent 95%);
 }
 
 .BPM span {
@@ -241,6 +247,7 @@ svg {
     position: relative;
     width: 100%;
     margin-top: 8px;
+	-webkit-mask: linear-gradient(to top, transparent 5%, black 30%, black 70%, transparent 95%);
 	mask: linear-gradient(to top, transparent 5%, black 30%, black 70%, transparent 95%);
 	transition: ease-in-out 500ms;
 }
