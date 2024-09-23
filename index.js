@@ -172,7 +172,7 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
 	let hits = state.name === 'ResultScreen' ? resultsScreen.hits : play.hits;
 
     if (cache.h100 !== hits['100']) {
-      cache.h100 = state.name = hits['100'];
+      cache.h100 = hits['100'];
       h100.update(hits['100']);
     }
 
