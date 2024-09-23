@@ -184,12 +184,12 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
       const percentage = Math.max(0, Math.min(beatmap.time.live / beatmap.time.mp3Length * 100, 100));
       chartProgress.style.width = String(percentage) + "%";
     }
-
-	let pp = state.name === 'ResultScreen' ? resultsScreen.pp : play.pp;
-	let hits = state.name === 'ResultScreen' ? resultsScreen.hits : play.hits;
+    
+    let pp = state.name === 'ResultScreen' ? resultsScreen.pp : play.pp;
+    let hits = state.name === 'ResultScreen' ? resultsScreen.hits : play.hits;
 
     if (cache.h100 !== hits['100']) {
-      cache.h100 = state.name = hits['100'];
+      cache.h100 = hits['100'];
       h100.update(hits['100']);
     }
 
@@ -270,35 +270,35 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
     let ppIfFC = document.getElementsByClassName('AlignPP PPifFC')[0];
     let ppCurrent = document.getElementsByClassName('AlignPP CurrentPP')[0];
     let ppSlash = document.getElementsByClassName('slash')[0];
-	let horizontalLine = document.getElementById('right-horizontal-line');
-	let hitsCont = document.getElementById('hits');
+	  let horizontalLine = document.getElementById('right-horizontal-line');
+	  let hitsCont = document.getElementById('hits');
 
+    let horizontalLine = document.getElementById('right-horizontal-line');
+    let hitsCont = document.getElementById('hits');
     if (state.name !== 'Play' && state.name !== 'ResultScreen') {
       const pp = document.getElementById('ppMax');
       if (pp.innerHTML !== cache.ppSS) {
         pp.innerHTML = Math.round(performance.accuracy[100]).toString();
       }
-	  horizontalLine.style.transform = 'translateY(-50px)';
-	  hitsCont.style.transform = 'translateY(-50px)';
+      horizontalLine.style.transform = 'translateY(-50px)';
+      hitsCont.style.transform = 'translateY(-50px)';
       ppIfFC.style.transform = 'translateX(-60px)';
-	  pps.style.transform = 'translateY(-20px)';
-	  pps.style.scale = 1.5;
+      pps.style.transform = 'scale(1.5, 1.5) translateY(-18px)';
       ppCurrent.style.transform = 'translateY(100px)';
       ppSlash.style.transform = 'translateY(100px)';
-	  horizontalLine.style.opacity = 0;
-	  hitsCont.style.opacity = 0;
+      horizontalLine.style.opacity = 0;
+      hitsCont.style.opacity = 0;
       ppCurrent.style.opacity = 0;
       ppSlash.style.opacity = 0;
     } else {
       horizontalLine.style.transform = 'translateY(0)';
-	  hitsCont.style.transform = 'translateY(0)';
+      hitsCont.style.transform = 'translateY(0)';
       ppIfFC.style.transform = 'translateX(0)';
-	  pps.style.transform = 'translateY(0)';
-	  pps.style.scale = 1;
+      pps.style.transform = 'scale(1, 1) translateY(0)';
       ppCurrent.style.transform = 'translateY(0)';
       ppSlash.style.transform = 'translateY(0)';
-	  horizontalLine.style.opacity = 1;
-	  hitsCont.style.opacity = 1;
+      horizontalLine.style.opacity = 1;
+      hitsCont.style.opacity = 1;
       ppCurrent.style.opacity = 1;
       ppSlash.style.opacity = 1;
     }
@@ -360,7 +360,7 @@ function checkAndAnimateScroll(box, text, picker) {
       clone.style.left = `${text.scrollWidth + 20}px`;
 
       box.appendChild(clone);
-      box.style.mask = 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)';
+      box.style.WebkitMask = 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)';
 
       startScroll(text, clone, picker);
   }
