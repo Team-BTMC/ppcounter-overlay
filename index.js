@@ -264,8 +264,7 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
 	  horizontalLine.style.transform = 'translateY(-50px)';
 	  hitsCont.style.transform = 'translateY(-50px)';
       ppIfFC.style.transform = 'translateX(-60px)';
-	  pps.style.transform = 'translateY(-20px)';
-	  pps.style.scale = 1.5;
+      pps.style.transform = 'scale(1.5, 1.5) translateY(-18px)';
       ppCurrent.style.transform = 'translateY(100px)';
       ppSlash.style.transform = 'translateY(100px)';
 	  horizontalLine.style.opacity = 0;
@@ -276,8 +275,7 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
       horizontalLine.style.transform = 'translateY(0)';
 	  hitsCont.style.transform = 'translateY(0)';
       ppIfFC.style.transform = 'translateX(0)';
-	  pps.style.transform = 'translateY(0)';
-	  pps.style.scale = 1;
+      pps.style.transform = 'scale(1, 1) translateY(0)';
       ppCurrent.style.transform = 'translateY(0)';
       ppSlash.style.transform = 'translateY(0)';
 	  horizontalLine.style.opacity = 1;
