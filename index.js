@@ -273,8 +273,6 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
 	  let horizontalLine = document.getElementById('right-horizontal-line');
 	  let hitsCont = document.getElementById('hits');
 
-    let horizontalLine = document.getElementById('right-horizontal-line');
-    let hitsCont = document.getElementById('hits');
     if (state.name !== 'Play' && state.name !== 'ResultScreen') {
       const pp = document.getElementById('ppMax');
       if (pp.innerHTML !== cache.ppSS) {
