@@ -265,6 +265,7 @@ svg {
 
 .AlignPP span {
     font-size: 20px;
+    white-space: nowrap;
     width: auto;
     text-align: center;
     margin: 0;
