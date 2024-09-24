@@ -1,13 +1,38 @@
 import WebSocketManager from './js/socket.js';
 import {
   createChartConfig,
-  slidingAverageWindowFilter,
-  standardDeviationFilter,
   toChartData
 } from "./js/difficulty-graph.js";
+import {
+  FAST_SMOOTH_TYPE_MULTIPLE_WIDTH,
+  FAST_SMOOTH_TYPE_NO_SMOOTHING,
+  fastSmooth,
+  max
+} from "./js/fast-smooth.js";
 const socket = new WebSocketManager('127.0.0.1:24050');
 
-let graphSmoothing = 2; // from interval <2; 10> ... tbh, over 4 it looks like doo doo
+
+
+const cache = {
+  h100: -1,
+  h50: -1,
+  h0: -1,
+  accuracy: -1,
+  title: "",
+  artist: "",
+  difficulty: "",
+  bpm: -1,
+  cs: -1,
+  ar: -1,
+  od: -1,
+  hp: -1,
+  maxSR: -1,
+  ppFC: -1,
+  background: "",
+  difficultyGraph: ''
+};
+
+let graphSmoothing = 2; // from 0 (no smoothing) to 5 (max smoothing)
 let configDarker = createChartConfig('rgba(185, 234, 255, 0.4)');
 let configLighter = createChartConfig('rgba(185, 234, 255, 0.7)');
 let chartDarker;
@@ -22,6 +47,7 @@ function renderGraph(graphData) {
 
   console.time('[GRAPH SMOOTHING]');
 
+  // Combine channels that represent the beatmaps difficulty
   const data = new Float32Array(graphData.xaxis.length);
   for (const series of graphData.series) {
     if (!channels.has(series.name)) {
@@ -33,32 +59,48 @@ function renderGraph(graphData) {
     }
   }
 
+  // Count up samples that don't represent intro, breaks, and outro sections
+  const percent = max(data) / 100;
   let drainSamples = 0;
   for (let i = 0; i < data.length; i++) {
     data[i] = Math.max(0, data[i]);
 
-    if (data[i] !== 0) {
+    if (data[i] > percent) {
       drainSamples++;
     }
   }
 
-  const smoothing = Math.round(drainSamples / (Math.PI * 100)) * graphSmoothing;
-  const graph = toChartData(
-    smoothing === 0
-      ? data
-      : standardDeviationFilter(
-        slidingAverageWindowFilter(data, Math.round(data.length / 600) * graphSmoothing),
-        (Math.PI * Math.log2(graphSmoothing)) / 10
-      ),
+
+  /**
+   * Y = 0.00609 * X + 0.88911
+   *
+   * The number were not chosen randomly, but they are a result of linear regression of hand-picked points:
+   * - X = 100; Y = 1
+   * - X = 220; Y = 2
+   * - X = 500; Y = 4
+   * - X = 610; Y = 4
+   * - X = 700; Y = 5
+   * - X = 1000; Y = 8
+   * - X = 1350; Y = 10
+   * - X = 2876; Y = 18
+   * - X = 8068; Y = 50
+   *
+   * @type {number}
+   */
+  const windowWidth = 0.00609 * drainSamples + 0.88911;
+  const smoothness = Math.max(FAST_SMOOTH_TYPE_NO_SMOOTHING, Math.min(graphSmoothing, FAST_SMOOTH_TYPE_MULTIPLE_WIDTH));
+
+  const fs = toChartData(
+      fastSmooth(data, windowWidth, smoothness)
   );
 
   console.timeEnd('[GRAPH SMOOTHING]');
 
-  configDarker.data.datasets[0].data = graph;
-  configDarker.data.labels = graph;
+  configDarker.data.datasets[0].data = fs;
+  configDarker.data.labels = fs;
 
-  configLighter.data.datasets[0].data = graph;
-  configLighter.data.labels = graph;
+  configLighter.data.datasets[0].data = fs;
+  configLighter.data.labels = fs;
 
   chartDarker.update();
   chartLighter.update();
@@ -122,31 +164,6 @@ socket.commands((data) => {
 
 let animationId0;
 let animationId1;
-
-const cache = {
-  h100: -1,
-  h50: -1,
-  h0: -1,
-  accuracy: -1,
-  title: "",
-  artist: "",
-  difficulty: "",
-  bpm: -1,
-  cs: -1,
-  ar: -1,
-  od: -1,
-  hp: -1,
-  maxSR: -1,
-  ppFC: -1,
-  ppSS: -1,
-  background: "",
-  difficultyGraph: {
-    data: '',
-    seek: 0,
-    time: 0,
-    played: 0
-  }
-};
 
 const h100 = new CountUp('h100', 0, 0, 0, .5, { useEasing: true, useGrouping: true, separator: " ", decimal: "." });
 const h50 = new CountUp('h50', 0, 0, 0, .5, { useEasing: true, useGrouping: true, separator: " ", decimal: "." });
@@ -248,14 +265,16 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
       cache.ppSS = performance.accuracy[100];
       document.getElementById('ppMax').innerHTML = Math.round(performance.accuracy[100]).toString();
     }
-    
+
     let pps = document.getElementsByClassName('PPS')[0];
     let ppIfFC = document.getElementsByClassName('AlignPP PPifFC')[0];
     let ppCurrent = document.getElementsByClassName('AlignPP CurrentPP')[0];
     let ppSlash = document.getElementsByClassName('slash')[0];
+	  let horizontalLine = document.getElementById('right-horizontal-line');
+	  let hitsCont = document.getElementById('hits');
+
     let horizontalLine = document.getElementById('right-horizontal-line');
     let hitsCont = document.getElementById('hits');
-    
     if (state.name !== 'Play' && state.name !== 'ResultScreen') {
       const pp = document.getElementById('ppMax');
       if (pp.innerHTML !== cache.ppSS) {
@@ -400,7 +419,7 @@ const difficultyColourSpectrum = d3.scaleLinear()
   .clamp(true)
   .range(['#4290FB', '#4FC0FF', '#4FFFD5', '#7CFF4F', '#F6F05C', '#FF8068', '#FF4E6F', '#C645B8', '#6563DE', '#18158E', '#000000'])
   .interpolate(d3.interpolateRgb.gamma(2.2));
-  
+
 function getDiffColour(rating) {
   if (rating < 0.1) return '#AAAAAA';
   if (rating >= 9) return '#000000';
