@@ -406,3 +406,8 @@ function getDiffColour(rating) {
   if (rating >= 9) return '#000000';
   return difficultyColourSpectrum(rating);
 }
+
+const img = document.getElementById('bg');
+  img.onerror = function() {
+    img.src = './assets/noimage.png';
+  };

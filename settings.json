@@ -18,7 +18,7 @@
         "uniqueID": "GraphSmoothing",
         "type": "number",
         "title": "Graph Smoothing",
-        "description": "Change the smoothing of the strain graph.\nWarning: Any value beyond 4 will look silly.",
+        "description": "Change the smoothing of the strain graph.⠀⠀\n0 = No smoothing.\n5 = manscaped smooth.",
         "value": "3"
     },
     {
