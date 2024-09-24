@@ -38,10 +38,7 @@
 .bg-image {
     position: absolute;
     bottom: 5px;
-    left: 5px;
     width: calc(100%); 
-    height: calc(100% - 5px);
-    border-radius: 0 0 0 10px;
     z-index: -1;
     object-fit: cover;
 	transition: opacity ease-in-out 200ms;
@@ -50,12 +47,34 @@
 .bg-overlay {
     position: absolute;
     bottom: 5px;
-    left: 5px;
     width: calc(100%);
-    height: calc(100% - 5px);
-    border-radius: 0 0 0 10px;
     background: rgba(0, 0, 0, 0.66); 
     z-index: -1;
+}
+
+.bg-i-o-top {
+    left: 5px;
+    height: calc(100% - 5px);
+    border-radius: 0 0 0 10px;
+}
+
+.bg-i-o-left {
+    top: 5px;
+    height: calc(100% - 10px);
+}
+
+.bg-i-o-right {
+    top: 5px;
+    left: 5px;
+    height: calc(100% - 10px);
+    border-radius: 10px 0 0 10px;
+}
+
+.bg-i-o-none {
+    top: 5px;
+    left: 5px;
+    height: calc(100% - 10px);
+    border-radius: 10px 0 0 10px;
 }
 
 .bg {
@@ -64,13 +83,42 @@
     left: 0;
     width: 569px;
     height: 92px;
+    z-index: -2;
+}
+
+.cutoff-top {
     background: linear-gradient(to bottom, var(--gradientColor1), var(--gradientColor2));
     border: 0 solid var(--outlineColor);
     border-bottom: 5px solid var(--outlineColor);
     border-left: 5px solid var(--outlineColor);
     border-right: 5px solid var(--outlineColor);
     border-radius: 0 0 15px 15px;
-    z-index: -2;
+}
+
+.cutoff-left {
+    background: linear-gradient(to bottom, var(--gradientColor1), var(--gradientColor2));
+    border: 0 solid var(--outlineColor);
+    border-top: 5px solid var(--outlineColor);
+    border-bottom: 5px solid var(--outlineColor);
+    border-left: 0;
+    border-right: 5px solid var(--outlineColor);
+    border-radius: 0 15px 15px 0;
+}
+
+.cutoff-right {
+    background: linear-gradient(to bottom, var(--gradientColor1), var(--gradientColor2));
+    border: 0 solid var(--outlineColor);
+    border-top: 5px solid var(--outlineColor);
+    border-bottom: 5px solid var(--outlineColor);
+    border-left: 5px solid var(--outlineColor);
+    border-right: 0;
+    border-radius: 15px 0 0 15px;
+}
+
+.cutoff-none {
+    background: linear-gradient(to bottom, var(--gradientColor1), var(--gradientColor2));
+    border: 5px solid var(--outlineColor); 
+    border-radius: 15px; 
 }
 
 .SongInfo {
@@ -342,10 +390,10 @@ svg {
 
 .dashed-line-vertical {
     position: absolute;
-    right: 188px;
-    top: 45%;
+    right: 194px;
+    top: 48%;
     transform: translateY(-50%) rotate(90deg);
-    width: 85px;
+    width: 75px;
     border: 2px dashed var(--dashedLineColor);
     z-index: 10;
 }

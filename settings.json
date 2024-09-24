@@ -8,18 +8,38 @@
         "value": "Enabled"
     },
     {
+        "uniqueID": "GraphSmoothing",
+        "type": "options",
+        "title": "Graph Smoothing",
+        "description": "Change the smoothing of the strain graph.",
+        "options": [
+            "Raw data",
+            "Small smoothing",
+            "Smoothing",
+            "Big smooth",
+            "Manscaped smooth"
+        ],
+        "value": "Smoothing"
+    },
+    {
+        "uniqueID": "CutoffPos",
+        "type": "options",
+        "title": "Cut off position",
+        "description": "Change the position of the cut off line of the pp-counter.",
+        "options": [
+            "Top",
+            "Left",
+            "Right",
+            "None"
+        ],
+        "value": "Top"
+    },
+    {
         "uniqueID": "GraphColor",
         "type": "color",
         "title": "Graph Color",
         "description": "Note: this doesn't work yet.\nChange the color of the strain graph.",
         "value": "#B9EAFF"
-    },
-    {
-        "uniqueID": "GraphSmoothing",
-        "type": "number",
-        "title": "Graph Smoothing",
-        "description": "Change the smoothing of the strain graph.⠀⠀\n0 = No smoothing.\n5 = manscaped smooth.",
-        "value": "3"
     },
     {
         "uniqueID": "GradientColor1",

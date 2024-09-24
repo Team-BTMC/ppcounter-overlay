@@ -131,8 +131,43 @@ socket.commands((data) => {
     }
 
     if (message['GraphSmoothing'] != null) {
-      graphSmoothing = message['GraphSmoothing'];
+      const smoothingMap = {
+        "Raw data": "0",
+        "Small smoothing": "1",
+        "Smoothing": "2",
+        "Big smooth": "3",
+        "Manscaped smooth": "4"
+      };
+      
+      graphSmoothing = smoothingMap[message['GraphSmoothing']];
       renderGraph(JSON.parse(cache.difficultyGraph));
+    }
+
+    if (message['CutoffPos'] != null) {
+      const cutoffMap = {
+          "Top": { bg: "cutoff-top", overlay: "bg-i-o-top" }, 
+          "Left": { bg: "cutoff-left", overlay: "bg-i-o-left" }, 
+          "Right": { bg: "cutoff-right", overlay: "bg-i-o-right" }, 
+          "None": { bg: "cutoff-none", overlay: "bg-i-o-none" } 
+      };
+  
+      let cutoffPosition = message['CutoffPos'];
+  
+      if (cutoffMap[cutoffPosition]) {
+          const bgElement = document.querySelector('.bg');
+          const bgImageElement = document.querySelector('.bg-image');
+          const bgOverlayElement = document.querySelector('.bg-overlay');
+  
+          Object.values(cutoffMap).forEach(({ bg, overlay }) => {
+              bgElement.classList.remove(bg);
+              bgImageElement.classList.remove(overlay);
+              bgOverlayElement.classList.remove(overlay);
+          });
+  
+          bgElement.classList.add(cutoffMap[cutoffPosition].bg);
+          bgImageElement.classList.add(cutoffMap[cutoffPosition].overlay);
+          bgOverlayElement.classList.add(cutoffMap[cutoffPosition].overlay);
+      }
     }
 
     if (message['GradientColor1'] != null) {
@@ -364,7 +399,7 @@ function checkAndAnimateScroll(box, text, picker) {
   }
   else {
     text.style.left = '0px';
-    box.style.mask = '';
+    box.style.WebkitMask = '';
   }
 }
 
