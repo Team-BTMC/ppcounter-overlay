@@ -261,16 +261,16 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
     if (cache.bpm !== beatmap.stats.bpm.realtime) {
       const bpmBox = document.getElementsByClassName('BPM')[0];
       const bpmValue = document.getElementById('bpm');
+      const { min, max } = beatmap.stats.bpm;
 
-      if (beatmap.stats.bpm.min !== beatmap.stats.bpm.max) {
-        const threshold = 5/100;
-        if ( beatmap.stats.bpm.realtime < beatmap.stats.bpm.min + threshold) {
-          bpmBox.style.color = '#ff6666';
-        } else if (beatmap.stats.bpm.realtime > beatmap.stats.bpm.max - threshold) {
-          bpmBox.style.color = '#b2ff66';
-        }
-      } else bpmBox.style.color = '#FEFFB8';
+      let color = '#FEFFB8';
+      if (min !== max) {
+        const threshold = (max - min) * 0.25;
+        if (beatmap.stats.bpm.realtime < beatmap.stats.bpm.min + threshold) color = '#b2ff66';
+        if (beatmap.stats.bpm.realtime > beatmap.stats.bpm.max - threshold) color = '#ff6666';
+      }
 
+      bpmBox.style.color = color;
       cache.bpm = beatmap.stats.bpm.realtime;
       bpmValue.innerHTML = beatmap.stats.bpm.realtime;
     }
