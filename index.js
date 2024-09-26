@@ -259,8 +259,20 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
     }
 
     if (cache.bpm !== beatmap.stats.bpm.realtime) {
+      const bpmBox = document.getElementsByClassName('BPM')[0];
+      const bpmValue = document.getElementById('bpm');
+
+      if (beatmap.stats.bpm.min !== beatmap.stats.bpm.max) {
+        const threshold = 5/100;
+        if ( beatmap.stats.bpm.realtime < beatmap.stats.bpm.min + threshold) {
+          bpmBox.style.color = '#ff6666';
+        } else if (beatmap.stats.bpm.realtime > beatmap.stats.bpm.max - threshold) {
+          bpmBox.style.color = '#b2ff66';
+        }
+      } else bpmBox.style.color = '#FEFFB8';
+
       cache.bpm = beatmap.stats.bpm.realtime;
-      document.getElementById('bpm').innerHTML = beatmap.stats.bpm.realtime;
+      bpmValue.innerHTML = beatmap.stats.bpm.realtime;
     }
 
     if (cache.cs !== beatmap.stats.cs.converted) {
