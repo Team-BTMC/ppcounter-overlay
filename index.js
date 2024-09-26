@@ -122,6 +122,10 @@ socket.commands((data) => {
       }
     }
 
+    if (message['UseSSPP'] != null) {
+      cache['UseSSPP'] = message['UseSSPP'];
+    }
+    
     if (message['GraphColor'] != null) {
       (chartDarker ?? configDarker).data.datasets[0].backgroundColor = hexToRgbA(message['GraphColor'], 0.4);
       (configLighter ?? configLighter).data.datasets[0].backgroundColor = hexToRgbA(message['GraphColor'], 0.7);
@@ -293,7 +297,10 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
       document.getElementById('srCont').style.backgroundColor = getDiffColour(cache.maxSR);
     }
 
-    if ((state.name === 'Play' || state.name === 'ResultScreen') && cache.ppFC !== pp.fc) {
+    if ((state.name === 'Play' || state.name === 'ResultScreen') && Boolean(cache['UseSSPP'])) {
+      cache.ppSS = performance.accuracy[100];
+      document.getElementById('ppMax').innerHTML = Math.round(performance.accuracy[100]).toString();
+    } else if ((state.name === 'Play' || state.name === 'ResultScreen') && cache.ppFC !== pp.fc) {
       cache.ppFC = pp.fc;
       document.getElementById('ppMax').innerHTML = Math.round(pp.fc).toString();
     } else if (cache.ppSS !== performance.accuracy[100]) {

@@ -8,6 +8,14 @@
         "value": "Enabled"
     },
     {
+        "uniqueID": "UseSSPP",
+        "type": "checkbox",
+        "title": "Show PP for SS",
+        "description": "Instead of showing PP for FC with current accuracy, show PP for SS",
+        "options": "Enabled, Disabled",
+        "value": "Disabled"
+    },
+    {
         "uniqueID": "GraphSmoothing",
         "type": "options",
         "title": "Graph Smoothing",
