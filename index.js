@@ -287,7 +287,7 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
 
       csBox.style.color = csBoxTextColor;
       cache.cs = beatmap.stats.cs.converted;
-      csValue.innerHTML = beatmap.stats.cs.converted;
+      csValue.innerHTML = beatmap.stats.cs.converted.toFixed(1);
     }
 
     if (cache.ar !== beatmap.stats.ar.converted) {
@@ -302,7 +302,7 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
 
       arBox.style.color = arBoxTextColor;
       cache.ar = beatmap.stats.ar.converted;
-      arValue.innerHTML = beatmap.stats.ar.converted;
+      arValue.innerHTML = beatmap.stats.ar.converted.toFixed(1);
     }
 
     if (cache.od !== beatmap.stats.od.converted) {
@@ -317,7 +317,7 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
 
       odBox.style.color = odBoxTextColor;
       cache.od = beatmap.stats.od.converted;
-      odValue.innerHTML = beatmap.stats.od.converted;
+      odValue.innerHTML = beatmap.stats.od.converted.toFixed(1);
     }
 
     if (cache.hp !== beatmap.stats.hp.converted) {
@@ -332,7 +332,7 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
 
       hpBox.style.color = hpBoxTextColor;
       cache.hp = beatmap.stats.hp.converted;
-      hpValue.innerHTML = beatmap.stats.hp.converted;
+      hpValue.innerHTML = beatmap.stats.hp.converted.toFixed(1);
     }
 
     if (cache.maxSR !== beatmap.stats.stars.total) {
