@@ -89,5 +89,12 @@
         "title": "Miss Color Indicator",
         "description": "Change the color of the indicator of the miss marker.",
         "value": "#F06363"
+    },
+    {
+      "uniqueID": "MultiplierColorEnabled",
+      "type": "checkbox",
+      "title": "Multiplier Stats Color",
+      "description": "Toggle the color change of the beatmap stats based on the multiplier.",
+      "value": "Enabled"
     }
 ]
