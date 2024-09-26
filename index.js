@@ -306,8 +306,18 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
     }
 
     if (cache.od !== beatmap.stats.od.converted) {
+      const odBox = document.getElementsByClassName('OD')[0];
+      const odValue = document.getElementById('od');
+
+      let odBoxTextColor = '#ffffff';
+      if (beatmap.stats.od.original !== beatmap.stats.od.converted) {
+        // Colors extracted from the osu!lazer mods menu's multiplier indicator.
+        odBoxTextColor = beatmap.stats.od.converted > beatmap.stats.od.original ? '#ff6666' : '#b2ff66';
+      }
+
+      odBox.style.color = odBoxTextColor;
       cache.od = beatmap.stats.od.converted;
-      document.getElementById('od').innerHTML = beatmap.stats.od.converted;
+      odValue.innerHTML = beatmap.stats.od.converted;
     }
 
     if (cache.hp !== beatmap.stats.hp.converted) {
