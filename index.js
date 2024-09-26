@@ -289,7 +289,6 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
       let csBoxTextColor = '#ffffff';
       if (MultiplierColorEnabled) {
         if (beatmap.stats.cs.original !== beatmap.stats.cs.converted) {
-          // Colors extracted from the osu!lazer mods menu's multiplier indicator.
           csBoxTextColor = beatmap.stats.cs.converted > beatmap.stats.cs.original ? '#ff6666' : '#b2ff66';
         }
       }
@@ -306,7 +305,6 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
       let arBoxTextColor = '#ffffff';
       if (MultiplierColorEnabled) {
         if (beatmap.stats.ar.original !== beatmap.stats.ar.converted) {
-          // Colors extracted from the osu!lazer mods menu's multiplier indicator.
           arBoxTextColor = beatmap.stats.ar.converted > beatmap.stats.ar.original ? '#ff6666' : '#b2ff66';
         }
       }
@@ -323,7 +321,6 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
       let odBoxTextColor = '#ffffff';
       if (MultiplierColorEnabled) {
         if (beatmap.stats.od.original !== beatmap.stats.od.converted) {
-          // Colors extracted from the osu!lazer mods menu's multiplier indicator.
           odBoxTextColor = beatmap.stats.od.converted > beatmap.stats.od.original ? '#ff6666' : '#b2ff66';
         }
       }
@@ -340,7 +337,6 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
       let hpBoxTextColor = '#ffffff';
       if (MultiplierColorEnabled) {
         if (beatmap.stats.hp.original !== beatmap.stats.hp.converted) {
-          // Colors extracted from the osu!lazer mods menu's multiplier indicator.
           hpBoxTextColor = beatmap.stats.hp.converted > beatmap.stats.hp.original ? '#ff6666' : '#b2ff66';
         }
       }
