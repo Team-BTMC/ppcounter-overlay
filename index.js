@@ -350,7 +350,7 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
       cache.maxSR = beatmap.stats.stars.total;
       let sr = document.getElementById('sr');
       let srTextColor = beatmap.stats.stars.total >= 6.5 ? '#fd5' : '#000000';
-      sr.innerHTML = beatmap.stats.stars.total;
+      sr.innerHTML = beatmap.stats.stars.total.toFixed(2);
       sr.style.color = srTextColor;
       document.getElementById('srStar').contentDocument.getElementsByTagName('svg')[0].style.fill = srTextColor;
       document.getElementById('srCont').style.backgroundColor = getDiffColour(cache.maxSR);
