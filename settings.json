@@ -38,7 +38,7 @@
         "uniqueID": "GraphColor",
         "type": "color",
         "title": "Graph Color",
-        "description": "Note: this doesn't work yet.\nChange the color of the strain graph.",
+        "description": "Change the color of the strain graph.",
         "value": "#B9EAFF"
     },
     {
