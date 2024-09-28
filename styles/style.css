@@ -227,10 +227,6 @@ svg {
     font-size: 14px;
 }
 
-.BPM p {
-    color: #FEFFB8;
-}
-
 .BPM #bpm {
     -webkit-mask: linear-gradient(to top, transparent 5%, black 20%, black 80%, transparent 95%);
     mask: linear-gradient(to top, transparent 5%, black 20%, black 80%, transparent 95%);
@@ -239,7 +235,6 @@ svg {
 .BPM span {
     transition: ease-in-out 300ms;
     font-size: 14px !important;
-    color: #FEFFB8;
 }
 
 .Right {

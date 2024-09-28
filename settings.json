@@ -42,6 +42,13 @@
         "value": "#B9EAFF"
     },
     {
+      "uniqueID": "MultiplierColorEnabled",
+      "type": "checkbox",
+      "title": "Dynamic statistic colors",
+      "description": "Dynamically change the beatmap statistic colors based on mods or bpm shifts.",
+      "value": "Enabled"
+    },
+    {
         "uniqueID": "GradientColor1",
         "type": "color",
         "title": "Gradient Color 1",

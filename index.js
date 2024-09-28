@@ -106,7 +106,7 @@ function renderGraph(graphData) {
   chartLighter.update();
 }
 
-
+let MultiplierColorEnabled;
 
 socket.sendCommand('getSettings', encodeURI(window.COUNTER_PATH));
 socket.commands((data) => {
@@ -192,6 +192,10 @@ socket.commands((data) => {
       document.body.style.setProperty('--missColor', message['MissColor']);
     };
 
+    if (message["MultiplierColorEnabled"] != null) {
+      MultiplierColorEnabled = message["MultiplierColorEnabled"];
+    }
+
   } catch (error) {
     console.log(error);
   };
@@ -259,35 +263,94 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
     }
 
     if (cache.bpm !== beatmap.stats.bpm.realtime) {
+      const bpmValue = document.getElementById('bpm');
+      const bpmBox = document.getElementsByClassName('BPM')[0];
+
+      let color = '#FEFFB8';
+      if (MultiplierColorEnabled) {
+        const { min, max } = beatmap.stats.bpm;
+
+        if (min !== max) {
+          const threshold = (max - min) * 0.25;
+          if (beatmap.stats.bpm.realtime < beatmap.stats.bpm.min + threshold) color = '#b2ff66';
+          if (beatmap.stats.bpm.realtime > beatmap.stats.bpm.max - threshold) color = '#ff6666';
+        }
+      }
+
+      bpmBox.style.color = color;
       cache.bpm = beatmap.stats.bpm.realtime;
-      document.getElementById('bpm').innerHTML = beatmap.stats.bpm.realtime;
+      bpmValue.innerHTML = beatmap.stats.bpm.realtime;
     }
 
     if (cache.cs !== beatmap.stats.cs.converted) {
+      const csBox = document.getElementsByClassName('CS')[0];
+      const csValue = document.getElementById('cs');
+
+      let csBoxTextColor = '#ffffff';
+      if (MultiplierColorEnabled) {
+        if (beatmap.stats.cs.original !== beatmap.stats.cs.converted) {
+          csBoxTextColor = beatmap.stats.cs.converted > beatmap.stats.cs.original ? '#ff6666' : '#b2ff66';
+        }
+      }
+
+      csBox.style.color = csBoxTextColor;
       cache.cs = beatmap.stats.cs.converted;
-      document.getElementById('cs').innerHTML = beatmap.stats.cs.converted;
+      csValue.innerHTML = beatmap.stats.cs.converted.toFixed(1);
     }
 
     if (cache.ar !== beatmap.stats.ar.converted) {
+      const arBox = document.getElementsByClassName('AR')[0];
+      const arValue = document.getElementById('ar');
+
+      let arBoxTextColor = '#ffffff';
+      if (MultiplierColorEnabled) {
+        if (beatmap.stats.ar.original !== beatmap.stats.ar.converted) {
+          arBoxTextColor = beatmap.stats.ar.converted > beatmap.stats.ar.original ? '#ff6666' : '#b2ff66';
+        }
+      }
+
+      arBox.style.color = arBoxTextColor;
       cache.ar = beatmap.stats.ar.converted;
-      document.getElementById('ar').innerHTML = beatmap.stats.ar.converted;
+      arValue.innerHTML = beatmap.stats.ar.converted.toFixed(1);
     }
 
     if (cache.od !== beatmap.stats.od.converted) {
+      const odBox = document.getElementsByClassName('OD')[0];
+      const odValue = document.getElementById('od');
+
+      let odBoxTextColor = '#ffffff';
+      if (MultiplierColorEnabled) {
+        if (beatmap.stats.od.original !== beatmap.stats.od.converted) {
+          odBoxTextColor = beatmap.stats.od.converted > beatmap.stats.od.original ? '#ff6666' : '#b2ff66';
+        }
+      }
+
+      odBox.style.color = odBoxTextColor;
       cache.od = beatmap.stats.od.converted;
-      document.getElementById('od').innerHTML = beatmap.stats.od.converted;
+      odValue.innerHTML = beatmap.stats.od.converted.toFixed(1);
     }
 
     if (cache.hp !== beatmap.stats.hp.converted) {
+      const hpBox = document.getElementsByClassName('HP')[0];
+      const hpValue = document.getElementById('hp');
+
+      let hpBoxTextColor = '#ffffff';
+      if (MultiplierColorEnabled) {
+        if (beatmap.stats.hp.original !== beatmap.stats.hp.converted) {
+          hpBoxTextColor = beatmap.stats.hp.converted > beatmap.stats.hp.original ? '#ff6666' : '#b2ff66';
+        }
+      }
+
+      hpBox.style.color = hpBoxTextColor;
       cache.hp = beatmap.stats.hp.converted;
-      document.getElementById('hp').innerHTML = beatmap.stats.hp.converted;
+      hpValue.innerHTML = beatmap.stats.hp.converted.toFixed(1);
     }
 
     if (cache.maxSR !== beatmap.stats.stars.total) {
       cache.maxSR = beatmap.stats.stars.total;
       let sr = document.getElementById('sr');
       let srTextColor = beatmap.stats.stars.total >= 6.5 ? '#fd5' : '#000000';
-      sr.innerHTML = beatmap.stats.stars.total;
+      sr.innerHTML = beatmap.stats.stars.total.toFixed(2);
       sr.style.color = srTextColor;
       document.getElementById('srStar').contentDocument.getElementsByTagName('svg')[0].style.fill = srTextColor;
       document.getElementById('srCont').style.backgroundColor = getDiffColour(cache.maxSR);
