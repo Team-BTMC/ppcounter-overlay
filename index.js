@@ -9,6 +9,7 @@ import {
   fastSmooth,
   max
 } from "./js/fast-smooth.js";
+import { hitJudgementsAdd, hitJudgementsClear } from "./js/hit-judgements.js";
 const socket = new WebSocketManager('127.0.0.1:24050');
 
 
@@ -17,6 +18,7 @@ const cache = {
   h100: -1,
   h50: -1,
   h0: -1,
+  sliderBreaks: -1,
   accuracy: -1,
   title: "",
   artist: "",
@@ -32,12 +34,14 @@ const cache = {
   difficultyGraph: ''
 };
 
-let graphSmoothing = 2; // from 0 (no smoothing) to 5 (max smoothing)
+/** @type {0 | 1 | 2 | 3 | 4 | 5} from 0 (no smoothing) to 5 (max smoothing)  */
+let graphSmoothing = 2;
 let configDarker = createChartConfig('rgba(185, 234, 255, 0.4)');
 let configLighter = createChartConfig('rgba(185, 234, 255, 0.7)');
 let chartDarker;
 let chartLighter;
 let chartProgress;
+let hitJudgementsElement;
 
 function renderGraph(graphData) {
   // Better be sure. In case someone forgets
@@ -132,11 +136,11 @@ socket.commands((data) => {
 
     if (message['GraphSmoothing'] != null) {
       const smoothingMap = {
-        "Raw data": "0",
-        "Small smoothing": "1",
-        "Smoothing": "2",
-        "Big smooth": "3",
-        "Manscaped smooth": "4"
+        "Raw data": 0,
+        "Small smoothing": 1,
+        "Smoothing": 2,
+        "Big smooth": 3,
+        "Manscaped smooth": 4
       };
       
       graphSmoothing = smoothingMap[message['GraphSmoothing']];
@@ -212,6 +216,7 @@ const channels = new Set(["aim", "speed"]);
 
 socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsScreen}) => {
   try {
+    const percentage = Math.max(0, Math.min(beatmap.time.live / beatmap.time.mp3Length * 100, 100));
     if (chartDarker !== undefined && chartLighter !== undefined && chartProgress !== undefined) {
       const dataString = JSON.stringify(performance.graph);
       if (cache.difficultyGraph !== dataString) {
@@ -220,7 +225,6 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
         renderGraph(performance.graph);
       }
 
-      const percentage = Math.max(0, Math.min(beatmap.time.live / beatmap.time.mp3Length * 100, 100));
       chartProgress.style.width = String(percentage) + "%";
     }
     
@@ -230,16 +234,36 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
     if (cache.h100 !== hits['100']) {
       cache.h100 = hits['100'];
       h100.update(hits['100']);
+
+      if (hits['100'] > 0 && state.name === "Play") {
+        hitJudgementsAdd(hitJudgementsElement, "100", percentage);
+      }
     }
 
     if (cache.h50 !== hits['50']) {
       cache.h50 = hits['50'];
       h50.update(hits['50']);
+
+      if (hits['50'] > 0 && state.name === "Play") {
+        hitJudgementsAdd(hitJudgementsElement, "50", percentage);
+      }
     }
 
     if (cache.h0 !== hits['0']) {
       cache.h0 = hits['0'];
       h0.update(hits['0']);
+
+      if (hits['0'] > 0 && state.name === "Play") {
+        hitJudgementsAdd(hitJudgementsElement, "x", percentage);
+      }
+    }
+
+    if (cache.sliderBreaks !== hits['sliderBreaks']) {
+      cache.sliderBreaks = hits['sliderBreaks'];
+
+      if (hits['sliderBreaks'] > 0 && state.name === "Play") {
+        hitJudgementsAdd(hitJudgementsElement, "sb", percentage);
+      }
     }
 
     if (cache.pp !== Math.round(pp.current)) {
@@ -386,6 +410,8 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
       hitsCont.style.opacity = 0;
       ppCurrent.style.opacity = 0;
       ppSlash.style.opacity = 0;
+
+      hitJudgementsClear(hitJudgementsElement);
     } else {
       horizontalLine.style.transform = 'translateY(0)';
       hitsCont.style.transform = 'translateY(0)';
@@ -433,6 +459,8 @@ window.addEventListener('load', () => {
       document.querySelector('.difficulty-graph .lighter').getContext('2d'),
     configLighter
   );
+
+  hitJudgementsElement = document.getElementById("hit-judgements");
 });
 
 function reset(item) {
