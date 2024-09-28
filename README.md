@@ -26,3 +26,5 @@ once its done ill post examples here :+1:
 
 -   [CaptSiro](https://github.com/CaptSiro): Created and styled everything from the Graph used
 -   [Xen-000](https://github.com/xen-000): Added finishing touches, state checking & better animations
+-   [GabuTheDev](https://github.com/GabuTheDev): Added dynamic color changes on beatmap stats
+-   [L1teD](https://github.com/L1teD): Helped with padding/margin fixes accross the overlay
