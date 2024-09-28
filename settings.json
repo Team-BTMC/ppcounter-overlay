@@ -38,8 +38,15 @@
         "uniqueID": "GraphColor",
         "type": "color",
         "title": "Graph Color",
-        "description": "Note: this doesn't work yet.\nChange the color of the strain graph.",
+        "description": "Change the color of the strain graph.",
         "value": "#B9EAFF"
+    },
+    {
+      "uniqueID": "MultiplierColorEnabled",
+      "type": "checkbox",
+      "title": "Dynamic statistic colors",
+      "description": "Dynamically change the beatmap statistic colors based on mods or bpm shifts.",
+      "value": "Enabled"
     },
     {
         "uniqueID": "GradientColor1",
@@ -89,12 +96,5 @@
         "title": "Miss Color Indicator",
         "description": "Change the color of the indicator of the miss marker.",
         "value": "#F06363"
-    },
-    {
-      "uniqueID": "MultiplierColorEnabled",
-      "type": "checkbox",
-      "title": "Multiplier Stats Color",
-      "description": "Toggle the color change of the beatmap stats based on the multiplier.",
-      "value": "Enabled"
     }
 ]
