@@ -230,10 +230,15 @@ svg {
 .BPM #bpm {
     -webkit-mask: linear-gradient(to top, transparent 5%, black 20%, black 80%, transparent 95%);
     mask: linear-gradient(to top, transparent 5%, black 20%, black 80%, transparent 95%);
+    transition: all ease-in-out 300ms;
+}
+
+.BPM p {
+    transition: all ease-in-out 300ms;
 }
 
 .BPM span {
-    transition: ease-in-out 300ms;
+    transition: transform ease-in-out 300ms;
     font-size: 14px !important;
 }
 
@@ -408,4 +413,8 @@ svg {
     border: 2px dashed var(--dashedLineColor);
     z-index: 10;
     transition: ease-in-out 500ms;
+}
+
+.CS, .AR, .OD, .HP {
+    transition: all ease-in-out 300ms;
 }
