@@ -1,4 +1,4 @@
-# Epic BMC tosu overlay
+# BTMC - Stream overlay designed for tosu
 
 A tosu overlay created and designed for BTMC (twitch.tv/BTMC) by happpy24
 
@@ -17,10 +17,6 @@ A tosu overlay created and designed for BTMC (twitch.tv/BTMC) by happpy24
 This overlay is _really_ customizable. In tosu, there will be a settings tab for you to play with all sorts of settings!
 
 ![settings-tosu](assets/image.png)
-
-## Examples!
-
-once its done ill post examples here :+1:
 
 ## With help from
 
