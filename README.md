@@ -24,3 +24,4 @@ This overlay is _really_ customizable. In tosu, there will be a settings tab for
 -   [Xen-000](https://github.com/xen-000): Added finishing touches, state checking & better animations
 -   [GabuTheDev](https://github.com/GabuTheDev): Added dynamic color changes on beatmap stats
 -   [L1teD](https://github.com/L1teD): Helped with padding/margin fixes accross the overlay
+-   [Plextora](https://github.com/Plextora): Added a toggle for showing Max-PP / PP-if-FC
