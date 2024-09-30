@@ -25,3 +25,4 @@ This overlay is _really_ customizable. In tosu, there will be a settings tab for
 -   [GabuTheDev](https://github.com/GabuTheDev): Added dynamic color changes on beatmap stats
 -   [L1teD](https://github.com/L1teD): Helped with padding/margin fixes accross the overlay
 -   [Plextora](https://github.com/Plextora): Added a toggle for showing Max-PP / PP-if-FC
+-   [AutumnVN](https://github.com/AutumnVN): Made sure in-game overlay works
