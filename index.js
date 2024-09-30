@@ -123,11 +123,11 @@ socket.commands((data) => {
     }
 
     if (message['GraphColor'] != null) {
-      (chartDarker ?? configDarker).data.datasets[0].backgroundColor = hexToRgbA(message['GraphColor'], 0.4);
-      (configLighter ?? configLighter).data.datasets[0].backgroundColor = hexToRgbA(message['GraphColor'], 0.7);
+        (chartDarker || configDarker).data.datasets[0].backgroundColor = hexToRgbA(message['GraphColor'], 0.4);
+        (configLighter || configLighter).data.datasets[0].backgroundColor = hexToRgbA(message['GraphColor'], 0.7);
 
-      chartDarker?.update();
-      chartLighter?.update();
+        chartDarker && chartDarker.update();
+        chartLighter && chartLighter.update();
     }
 
     if (message['GraphSmoothing'] != null) {
