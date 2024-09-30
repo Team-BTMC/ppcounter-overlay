@@ -135,12 +135,16 @@ socket.commands((data) => {
             }
         }
 
-        if (message['GraphColor'] != null) {
-            (chartDarker ?? configDarker).data.datasets[0].backgroundColor = hexToRgbA(message['GraphColor'], 0.4);
-            (configLighter ?? configLighter).data.datasets[0].backgroundColor = hexToRgbA(message['GraphColor'], 0.7);
+        if (message['UseSSPP'] != null) {
+            cache['UseSSPP'] = message['UseSSPP'];
+        }
 
-            chartDarker?.update();
-            chartLighter?.update();
+        if (message['GraphColor'] != null) {
+            (chartDarker || configDarker).data.datasets[0].backgroundColor = hexToRgbA(message['GraphColor'], 0.4);
+            (configLighter || configLighter).data.datasets[0].backgroundColor = hexToRgbA(message['GraphColor'], 0.7);
+
+            chartDarker && chartDarker.update();
+            chartLighter && chartLighter.update();
         }
 
         if (message['GraphSmoothing'] != null) {
@@ -378,7 +382,10 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             document.getElementById('srCont').style.backgroundColor = getDiffColour(cache.maxSR);
         }
 
-        if ((state.name === 'Play' || state.name === 'ResultScreen') && cache.ppFC !== pp.fc) {
+        if ((state.name === 'Play' || state.name === 'ResultScreen') && Boolean(cache['UseSSPP'])) {
+            cache.ppSS = performance.accuracy[100];
+            document.getElementById('ppFC').innerHTML = Math.round(performance.accuracy[100]).toString();
+          } else if ((state.name === 'Play' || state.name === 'ResultScreen') && cache.ppFC !== pp.fc) {
             cache.ppFC = pp.fc;
             document.getElementById('ppFC').innerHTML = Math.round(pp.fc).toString();
         } else if (cache.ppSS !== performance.accuracy[100]) {
@@ -406,14 +413,15 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             hitErrorsContainer.style.opacity = 0;
             ppContainer.style.height = '100%';
 
-            ppValueContainer.style.transform = 'translateX(-50px) scale(1.8)'
+            ppValueContainer.style.transform = 
+                `translateX(-50%) scale(1.8)`
+            ppValueContainer.style.left = '50%'
 
             ppCurrent.style.opacity = 0;
             slash.style.opacity = 0;
 
             ppCurrent.style.transform = 'translateY(40px)';
-            slash.style.transform = 'translateY(40px)';
-
+            slash.style.transform = 'translate(-50%, 40px)';
         } else {
             const pp = document.getElementById('ppFC');
 
@@ -421,14 +429,15 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             hitErrorsContainer.style.opacity = 1;
             ppContainer.style.height = '40%';
 
-            ppValueContainer.style.transform = `translateX(0px) scale(1)`
+            ppValueContainer.style.transform =
+                `translateX(0px) scale(1)`
+             ppValueContainer.style.left = '63%'
             
             ppCurrent.style.opacity = 1;
             slash.style.opacity = 1;
 
             ppCurrent.style.transform = 'translateY(0px)';
-            slash.style.transform = 'translateY(0px)';
-
+            slash.style.transform = 'translate(-50%, 0px)';
         }
 
         if (cache['menu.bm.path.full'] != directPath.beatmapBackground) {
