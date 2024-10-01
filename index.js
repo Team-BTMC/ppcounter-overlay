@@ -9,7 +9,7 @@ import {
     fastSmooth,
     max
 } from "./js/fast-smooth.js";
-const socket = new WebSocketManager('127.0.0.1:24050');
+const socket = new WebSocketManager(window.location.host);
 
 new Odometer({
     el: document.getElementById('bpm'),
@@ -137,6 +137,10 @@ socket.commands((data) => {
 
         if (message['UseSSPP'] != null) {
             cache['UseSSPP'] = message['UseSSPP'];
+        }
+
+        if (message['ShowVisualizer'] != null) {
+            cache['ShowVisualizer'] = message['ShowVisualizer'];
         }
 
         if (message['GraphColor'] != null) {
@@ -306,6 +310,8 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             bpmBox.style.color = color;
             cache.bpm = beatmap.stats.bpm.realtime;
             bpmValue.innerHTML = beatmap.stats.bpm.realtime;
+
+            document.querySelector('.beat-lighting').setAttribute('style', `animation: bpm-animation ${1000 / (beatmap.stats.bpm.realtime / 60)}ms infinite linear;`)
         }
 
         if (cache.cs !== beatmap.stats.cs.converted) {
@@ -393,6 +399,10 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             document.getElementById('ppFC').innerHTML = Math.round(performance.accuracy[100]).toString();
         }
 
+        if (Boolean(cache['ShowVisualizer'])) {
+            document.querySelector('.beat-lighting').style.opacity = 1;
+        }
+
         const ppValueContainer = document.querySelector('.ppFC');
         const ppCurrent = document.querySelector('.ppCurrent')
         const slash = document.querySelector('.slash')
@@ -430,13 +440,14 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             ppContainer.style.height = '40%';
 
             ppValueContainer.style.transform =
-                `translateX(0px) scale(1)`
-             ppValueContainer.style.left = '63%'
+                `translateX(-50%) scale(1)`
+            ppValueContainer.style.left = '75%'
             
             ppCurrent.style.opacity = 1;
             slash.style.opacity = 1;
 
-            ppCurrent.style.transform = 'translateY(0px)';
+            ppCurrent.style.transform = 'translateX(-50%)';
+            ppCurrent.style.left = '25%';
             slash.style.transform = 'translate(-50%, 0px)';
         }
 

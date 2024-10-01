@@ -16,6 +16,14 @@
         "value": "Disabled"
     },
     {
+        "uniqueID": "ShowVisualizer",
+        "type": "checkbox",
+        "title": "Show BPM visualizer",
+        "description": "Enables background lighting BPM visualizer",
+        "options": "Enabled, Disabled",
+        "value": "Disabled"
+    },
+    {
         "uniqueID": "GraphSmoothing",
         "type": "options",
         "title": "Graph Smoothing",

@@ -26,6 +26,8 @@
 }
 
 body {
+    margin-inline: 20px;
+
     color: white;
     line-height: 1;
 }
@@ -91,7 +93,9 @@ body {
 }
 
 .main-container {
-    width: 569px;
+    position: relative;
+
+    width: 570px;
     height: 92px;
     border-radius: 15px;
     border: .3rem solid var(--outlineColor);
@@ -99,6 +103,35 @@ body {
     display: flex;
 
     overflow: hidden;
+
+    background: linear-gradient(to bottom, var(--gradientColor1), var(--gradientColor2));
+}
+
+.beat-lighting {
+    position: absolute;
+    top: 13.5px;
+
+    height: 65px;
+    width: 570px;
+
+    box-shadow: 0 0 20px var(--outlineColor);
+
+    opacity: 0;
+}
+
+@keyframes bpm-animation {
+    0% {
+        box-shadow: 0 0 20px var(--outlineColor);
+    }
+    25% {
+        box-shadow: 0 0 15px var(--outlineColor);
+    }
+    75% {
+        box-shadow: 0 0 0px var(--outlineColor);
+    }
+    100% {
+        box-shadow: 0 0 5px var(--outlineColor);
+    }
 }
 
 .border-top-0 {
@@ -129,8 +162,6 @@ body {
     left: 0;
     right: 0;
 
-    z-index: -1;
-
     transform: translateY(-15%);
 
     transition: all .5s cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -143,8 +174,6 @@ body {
 
     left: 0;
     right: 0;
-
-    z-index: -1;
 
     transform: translateY(-6%);
 
@@ -187,8 +216,6 @@ body {
     flex-direction: column;
 
     border-left: 3px dashed var(--dashedLineColor);
-
-    background: linear-gradient(to bottom, var(--gradientColor1), var(--gradientColor2));
 }
 
 .song-info {
@@ -197,6 +224,8 @@ body {
 
     display: flex;
     flex-direction: column;
+
+    z-index: 1;
 }
 
 .title {
@@ -221,6 +250,8 @@ body {
 
     width: 100%;
     height: 50%;
+
+    z-index: 1;
 }
 
 .sr-container {
@@ -344,7 +375,7 @@ body {
 
 .ppCurrent {
     position: absolute;
-    left: 18%;
+    left: 15%;
     transform: translateX(-50%);
 
     transition: all .5s cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -352,7 +383,7 @@ body {
 
 .ppFC {
     position: absolute;
-    left: 63%;
+    left: 200%;
     transform: translateX(-50%);
 
     white-space: nowrap;
