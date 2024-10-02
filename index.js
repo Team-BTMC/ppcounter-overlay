@@ -172,6 +172,13 @@ socket.commands((data) => {
                 "None": "border-none"
             };
 
+            const cutoffStyleMap = {
+                "Top": "20px",
+                "Left": "0px",
+                "Right": "40px",
+                "None": "20px"
+            };
+
             let cutoffPosition = message['CutoffPos'];
 
             if (cutoffMap[cutoffPosition]) {
@@ -188,6 +195,7 @@ socket.commands((data) => {
                 }
 
                 mainContainer.classList.add(cutoffMap[cutoffPosition])
+                document.body.style.marginInline = cutoffStyleMap[cutoffPosition]
             }
         }
 

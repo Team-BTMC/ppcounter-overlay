@@ -26,6 +26,7 @@
 }
 
 body {
+    background-color: black;
     margin-inline: 20px;
 
     color: white;
