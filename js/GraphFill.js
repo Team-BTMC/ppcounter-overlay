@@ -77,7 +77,7 @@ export default class GraphFill {
      */
     constructor(fill, border = undefined) {
         this.#fill = fill;
-        this.#border = border ?? fill.clone().setAlpha(1);
+        this.#border = border !== undefined ? border : fill.clone().setAlpha(1);
     }
 
 
