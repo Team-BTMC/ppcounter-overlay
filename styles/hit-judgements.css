@@ -6,6 +6,7 @@
     height: 100%;
 }
 
+/*todo remove*/
 html {
     background-color: black;
 }
@@ -25,20 +26,19 @@ html {
 
 #hit-judgements .hj-100 {
     z-index: 5;
-    height: 8px;
+    height: 12px;
     background-color: var(--hunderdColor);
 }
 
 #hit-judgements .hj-50 {
     z-index: 6;
-    height: 16px;
+    height: 12px;
     background-color: var(--fiftyColor);
 }
 
-#hit-judgements .hj-sb {
-    z-index: 7;
+#hit-judgements .hj-50.hj-sb,
+#hit-judgements .hj-100.hj-sb {
     height: 24px;
-    background-color: rgb(200, 200, 200);
 }
 
 #hit-judgements .hj-x {

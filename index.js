@@ -10,6 +10,7 @@ import {
   max
 } from "./js/fast-smooth.js";
 import { hitJudgementsAdd, hitJudgementsClear } from "./js/hit-judgements.js";
+import GraphFill, { Color } from "./js/GraphFill.js";
 const socket = new WebSocketManager('127.0.0.1:24050');
 
 
@@ -36,8 +37,10 @@ const cache = {
 
 /** @type {0 | 1 | 2 | 3 | 4 | 5} from 0 (no smoothing) to 5 (max smoothing)  */
 let graphSmoothing = 2;
-let configDarker = createChartConfig('rgba(185, 234, 255, 0.4)');
-let configLighter = createChartConfig('rgba(185, 234, 255, 0.7)');
+const gradientDarker = new GraphFill(new Color(185, 234, 255, 0.4), Color.TRANSPARENT);
+const gradientLighter = new GraphFill(new Color(185, 234, 255, 0.7));
+let configDarker = createChartConfig(gradientDarker);
+let configLighter = createChartConfig(gradientLighter);
 let chartDarker;
 let chartLighter;
 let chartProgress;
@@ -127,8 +130,12 @@ socket.commands((data) => {
     }
 
     if (message['GraphColor'] != null) {
-      (chartDarker ?? configDarker).data.datasets[0].backgroundColor = hexToRgbA(message['GraphColor'], 0.4);
-      (configLighter ?? configLighter).data.datasets[0].backgroundColor = hexToRgbA(message['GraphColor'], 0.7);
+      gradientDarker.setFill(Color.fromHex(message['GraphColor']).setAlpha(0.5));
+      gradientDarker.setBorder(Color.TRANSPARENT.clone());
+
+      const fill = Color.fromHex(message['GraphColor']);
+      gradientLighter.setFill(fill.setAlpha(0.5));
+      gradientLighter.setBorder(fill.clone().setAlpha(1));
 
       chartDarker?.update();
       chartLighter?.update();
@@ -231,12 +238,15 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
     let pp = state.name === 'ResultScreen' ? resultsScreen.pp : play.pp;
     let hits = state.name === 'ResultScreen' ? resultsScreen.hits : play.hits;
 
+    const isSliderBreak = cache.sliderBreaks !== hits['sliderBreaks'];
+
     if (cache.h100 !== hits['100']) {
       cache.h100 = hits['100'];
       h100.update(hits['100']);
 
       if (hits['100'] > 0 && state.name === "Play") {
-        hitJudgementsAdd(hitJudgementsElement, "100", percentage);
+        cache.sliderBreaks = hits['sliderBreaks'];
+        hitJudgementsAdd(hitJudgementsElement, "100", percentage, isSliderBreak);
       }
     }
 
@@ -245,7 +255,8 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
       h50.update(hits['50']);
 
       if (hits['50'] > 0 && state.name === "Play") {
-        hitJudgementsAdd(hitJudgementsElement, "50", percentage);
+        cache.sliderBreaks = hits['sliderBreaks'];
+        hitJudgementsAdd(hitJudgementsElement, "50", percentage, isSliderBreak);
       }
     }
 
@@ -254,15 +265,8 @@ socket.api_v2(({play, beatmap, directPath, folders, performance, state, resultsS
       h0.update(hits['0']);
 
       if (hits['0'] > 0 && state.name === "Play") {
-        hitJudgementsAdd(hitJudgementsElement, "x", percentage);
-      }
-    }
-
-    if (cache.sliderBreaks !== hits['sliderBreaks']) {
-      cache.sliderBreaks = hits['sliderBreaks'];
-
-      if (hits['sliderBreaks'] > 0 && state.name === "Play") {
-        hitJudgementsAdd(hitJudgementsElement, "sb", percentage);
+        cache.sliderBreaks = hits['sliderBreaks'];
+        hitJudgementsAdd(hitJudgementsElement, "x", percentage, isSliderBreak);
       }
     }
 

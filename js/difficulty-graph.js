@@ -1,3 +1,7 @@
+import GraphFill from "./GraphFill.js";
+
+
+
 /**
  * @typedef {{ x: number, y: number }} Point
  */
@@ -729,15 +733,20 @@ export function toChartData(filterOutput) {
     return Array.from(filterOutput);
 }
 
-export function createChartConfig(backgroundColor) {
+/**
+ * @param {GraphFill} fill
+ * @returns {{data: {datasets: [{backgroundColor: *, data: *[], fill: boolean}], labels: *[]}, options: {legend: {display: boolean}, elements: {line: {tension: number, cubicInterpolationMode: string}, point: {radius: number}}, responsive: boolean, scales: {x: {display: boolean}, y: {display: boolean}}, tooltips: {enabled: boolean}}, type: string}}
+ */
+export function createChartConfig(fill) {
     return {
         type: 'line',
         data: {
             labels: [],
             datasets: [
                 {
-                    borderColor: 'rgba(0, 0, 0, 0)',
-                    backgroundColor,
+                    borderColor: fill.border(),
+                    borderWidth: 1.5,
+                    backgroundColor: fill.background(),
                     data: [],
                     fill: true,
                 }
