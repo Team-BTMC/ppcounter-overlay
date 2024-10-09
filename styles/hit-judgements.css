@@ -1,0 +1,48 @@
+/*
+    Important: If you change width of hit judgement indicator, you have to change the width in hit-judgements.js
+*/
+#hit-judgements {
+    width: 100%;
+    height: 100%;
+}
+
+/*todo remove*/
+html {
+    background-color: black;
+}
+
+#hit-judgements > * {
+    position: absolute;
+    width: 4px;
+    border-radius: 999px;
+    top: 0;
+
+    transition: height 250ms ease-in-out;
+}
+
+#hit-judgements > .hide {
+    height: 0 !important;
+}
+
+#hit-judgements .hj-100 {
+    z-index: 5;
+    height: 12px;
+    background-color: var(--hunderdColor);
+}
+
+#hit-judgements .hj-50 {
+    z-index: 6;
+    height: 12px;
+    background-color: var(--fiftyColor);
+}
+
+#hit-judgements .hj-50.hj-sb,
+#hit-judgements .hj-100.hj-sb {
+    height: 24px;
+}
+
+#hit-judgements .hj-x {
+    z-index: 8;
+    height: 24px;
+    background-color: var(--missColor);
+}

@@ -9,7 +9,9 @@ import {
     fastSmooth,
     max
 } from "./js/fast-smooth.js";
-const socket = new WebSocketManager(window.location.host);
+import { hitJudgementsAdd, hitJudgementsClear } from "./js/hit-judgements.js";
+import GraphFill, { Color } from "./js/GraphFill.js";
+const socket = new WebSocketManager('127.0.0.1:24050');
 
 new Odometer({
     el: document.getElementById('bpm'),
@@ -27,30 +29,35 @@ new Odometer({
 });
 
 const cache = {
-    h100: -1,
-    h50: -1,
-    h0: -1,
-    accuracy: -1,
-    title: "",
-    artist: "",
-    difficulty: "",
-    bpm: -1,
-    cs: -1,
-    ar: -1,
-    od: -1,
-    hp: -1,
-    maxSR: -1,
-    ppFC: -1,
-    background: "",
-    difficultyGraph: ''
+  h100: -1,
+  h50: -1,
+  h0: -1,
+  sliderBreaks: -1,
+  accuracy: -1,
+  title: "",
+  artist: "",
+  difficulty: "",
+  bpm: -1,
+  cs: -1,
+  ar: -1,
+  od: -1,
+  hp: -1,
+  maxSR: -1,
+  ppFC: -1,
+  background: "",
+  difficultyGraph: ''
 };
 
-let graphSmoothing = 2; // from 0 (no smoothing) to 5 (max smoothing)
-let configDarker = createChartConfig('rgba(185, 234, 255, 0.4)');
-let configLighter = createChartConfig('rgba(185, 234, 255, 0.7)');
+/** @type {0 | 1 | 2 | 3 | 4 | 5} from 0 (no smoothing) to 5 (max smoothing)  */
+let graphSmoothing = 2;
+const gradientDarker = new GraphFill(new Color(185, 234, 255, 0.4), Color.TRANSPARENT);
+const gradientLighter = new GraphFill(new Color(185, 234, 255, 0.7));
+let configDarker = createChartConfig(gradientDarker);
+let configLighter = createChartConfig(gradientLighter);
 let chartDarker;
 let chartLighter;
 let chartProgress;
+let hitJudgementsElement;
 
 function renderGraph(graphData) {
     // Better be sure. In case someone forgets
@@ -144,11 +151,15 @@ socket.commands((data) => {
         }
 
         if (message['GraphColor'] != null) {
-            (chartDarker || configDarker).data.datasets[0].backgroundColor = hexToRgbA(message['GraphColor'], 0.4);
-            (configLighter || configLighter).data.datasets[0].backgroundColor = hexToRgbA(message['GraphColor'], 0.7);
+              gradientDarker.setFill(Color.fromHex(message['GraphColor']).setAlpha(0.5));
+              gradientDarker.setBorder(Color.TRANSPARENT.clone());
 
-            chartDarker && chartDarker.update();
-            chartLighter && chartLighter.update();
+              const fill = Color.fromHex(message['GraphColor']);
+              gradientLighter.setFill(fill.setAlpha(0.5));
+              gradientLighter.setBorder(fill.clone().setAlpha(1));
+
+              chartDarker?.update();
+              chartLighter?.update();
         }
 
         if (message['GraphSmoothing'] != null) {
@@ -246,6 +257,7 @@ const ppCache = {
 
 socket.api_v2(({ play, beatmap, directPath, folders, performance, state, resultsScreen }) => {
     try {
+        const percentage = Math.max(0, Math.min(beatmap.time.live / beatmap.time.mp3Length * 100, 100));
         if (chartDarker !== undefined && chartLighter !== undefined && chartProgress !== undefined) {
             const dataString = JSON.stringify(performance.graph);
             if (cache.difficultyGraph !== dataString) {
@@ -254,26 +266,42 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
                 renderGraph(performance.graph);
             }
 
-            const percentage = Math.max(0, Math.min(beatmap.time.live / beatmap.time.mp3Length * 100, 100));
             chartProgress.style.width = String(percentage) + "%";
         }
 
         let pp = state.name === 'ResultScreen' ? resultsScreen.pp : play.pp;
         let hits = state.name === 'ResultScreen' ? resultsScreen.hits : play.hits;
 
+        const isSliderBreak = cache.sliderBreaks !== hits['sliderBreaks'];
+
         if (cache.h100 !== hits['100']) {
             cache.h100 = hits['100'];
             h100.update(hits['100']);
+
+            if (hits['100'] > 0 && state.name === "Play") {
+                cache.sliderBreaks = hits['sliderBreaks'];
+                hitJudgementsAdd(hitJudgementsElement, "100", percentage, isSliderBreak);
+            }
         }
 
         if (cache.h50 !== hits['50']) {
             cache.h50 = hits['50'];
             h50.update(hits['50']);
+
+            if (hits['50'] > 0 && state.name === "Play") {
+                cache.sliderBreaks = hits['sliderBreaks'];
+                hitJudgementsAdd(hitJudgementsElement, "50", percentage, isSliderBreak);
+            }
         }
 
         if (cache.h0 !== hits['0']) {
             cache.h0 = hits['0'];
             h0.update(hits['0']);
+
+            if (hits['0'] > 0 && state.name === "Play") {
+                cache.sliderBreaks = hits['sliderBreaks'];
+                hitJudgementsAdd(hitJudgementsElement, "x", percentage, isSliderBreak);
+            }
         }
 
         if (cache.pp !== Math.round(pp.current)) {
@@ -420,7 +448,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
 
         if (state.name !== 'Play' && state.name !== 'ResultScreen') {
             const pp = document.getElementById('ppFC');
-            
+
             const hitErrors = document.getElementById('ppFC');
 
             if (pp.innerHTML !== cache.ppSS) {
@@ -431,7 +459,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             hitErrorsContainer.style.opacity = 0;
             ppContainer.style.height = '100%';
 
-            ppValueContainer.style.transform = 
+            ppValueContainer.style.transform =
                 `translateX(-50%) scale(1.8)`
             ppValueContainer.style.left = '50%'
 
@@ -450,7 +478,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             ppValueContainer.style.transform =
                 `translateX(-50%) scale(1)`
             ppValueContainer.style.left = '75%'
-            
+
             ppCurrent.style.opacity = 1;
             slash.style.opacity = 1;
 
@@ -514,8 +542,8 @@ function reset(item) {
 
 /**
  * No comments, just shitcode
- * @param {HTMLElement} parent 
- * @param {HTMLElement} child 
+ * @param {HTMLElement} parent
+ * @param {HTMLElement} child
  */
 async function checkAndAnimateScroll(parent, child) {
     if (child.getBoundingClientRect().width >= parent.getBoundingClientRect().width) {
@@ -523,7 +551,7 @@ async function checkAndAnimateScroll(parent, child) {
         const titles = parent.querySelectorAll('span')
 
         if (titles.length < 2) parent.append(child.cloneNode(true));
-        
+
     } else {
         parent.classList.remove('marquee')
         const titles = parent.querySelectorAll('span')

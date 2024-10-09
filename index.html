@@ -28,6 +28,10 @@
 			rel="stylesheet"
 			href="styles/difficulty-graph.css"
 		/>
+        <link
+            rel="stylesheet"
+            href="styles/hit-judgements.css"
+        />
 	</head>
 
 	<body>
@@ -57,7 +61,7 @@
 							<span>CS</span>
 							<span id="cs">4</span>
 						</div>
-						
+
 						<div class="ar">
 							<span>AR</span>
 							<span id="ar">8</span>
@@ -78,7 +82,7 @@
 				<div class="bg-underlay"></div>
 				<img id="bg" class="bg" src="./assets/noimage.png">
 				<div class="bg-overlay"></div>
-				
+
 			</div>
 			<div class="right">
 				<div class="hit-errors">
@@ -116,7 +120,9 @@
 					height="64"
 				></canvas>
 			</div>
+            <div id="hit-judgements"></div>
 		</div>
+
 		<!--        OTHER SCRIPTS        -->
 		<script src="js/odometr.js"></script>
 		<script src="js/countUp.js"></script>
