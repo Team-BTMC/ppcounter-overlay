@@ -57,7 +57,7 @@ let configLighter = createChartConfig(gradientLighter);
 let chartDarker;
 let chartLighter;
 let chartProgress;
-let hitJudgementsElement;
+const hitJudgementsElement = document.querySelector('#hit-judgements');
 
 function renderGraph(graphData) {
     // Better be sure. In case someone forgets
@@ -302,6 +302,10 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
                 cache.sliderBreaks = hits['sliderBreaks'];
                 hitJudgementsAdd(hitJudgementsElement, "x", percentage, isSliderBreak);
             }
+        }
+
+        if (hits['100'] === 0 && hits['50'] === 0 && hits['0'] === 0) {
+            hitJudgementsClear(hitJudgementsElement);
         }
 
         if (cache.pp !== Math.round(pp.current)) {
