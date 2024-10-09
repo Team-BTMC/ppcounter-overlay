@@ -27,7 +27,7 @@ html {
 #hit-judgements .hj-100 {
     z-index: 5;
     height: 12px;
-    background-color: var(--hunderdColor);
+    background-color: var(--hundredColor);
 }
 
 #hit-judgements .hj-50 {
