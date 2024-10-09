@@ -427,7 +427,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
         if ((state.name === 'Play' || state.name === 'ResultScreen') && Boolean(cache['UseSSPP'])) {
             cache.ppSS = performance.accuracy[100];
             document.getElementById('ppFC').innerHTML = Math.round(performance.accuracy[100]).toString();
-          } else if ((state.name === 'Play' || state.name === 'ResultScreen') && cache.ppFC !== pp.fc) {
+        } else if ((state.name === 'Play' || state.name === 'ResultScreen') && cache.ppFC !== pp.fc) {
             cache.ppFC = pp.fc;
             document.getElementById('ppFC').innerHTML = Math.round(pp.fc).toString();
         } else if (cache.ppSS !== performance.accuracy[100]) {
@@ -541,7 +541,7 @@ function reset(item) {
 }
 
 /**
- * No comments, just shitcode
+ * No comments
  * @param {HTMLElement} parent
  * @param {HTMLElement} child
  */
@@ -559,53 +559,6 @@ async function checkAndAnimateScroll(parent, child) {
         if (titles.length > 1) titles[0].remove();
     }
 }
-
-// function checkAndAnimateScroll(box, text, picker) {
-//     if (text.clientWidth > box.clientWidth) {
-//         const clone = text.cloneNode(true);
-//         clone.classList.add('clone');
-//         clone.style.left = `${text.scrollWidth + 20}px`;
-
-//         box.appendChild(clone);
-//         box.style.WebkitMask = 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)';
-
-//         startScroll(text, clone, picker);
-//     }
-//     else {
-//         text.style.left = '0px';
-//         box.style.WebkitMask = '';
-//     }
-// }
-
-// function startScroll(original, clone, picker) {
-//     let originalPos = 0;
-//     let clonePos = original.scrollWidth + 20;
-
-//     function animate() {
-//         originalPos -= 0.2;
-//         clonePos -= 0.2;
-
-//         original.style.left = `${originalPos}px`;
-//         clone.style.left = `${clonePos}px`;
-
-//         if (originalPos < -original.scrollWidth - 20) {
-//             originalPos = clonePos + original.scrollWidth + 20;
-//         }
-//         if (clonePos < -clone.scrollWidth - 20) {
-//             clonePos = originalPos + clone.scrollWidth + 20;
-//         }
-
-//         if (picker == 0) {
-//             animationId0 = requestAnimationFrame(animate);
-//         } else if (picker == 1) {
-//             animationId1 = requestAnimationFrame(animate);
-//         } else {
-//             console.log('Massive error, please report this to the developer on discord: @h_24');
-//         }
-//     }
-
-//     animate();
-// }
 
 function hexToRgbA(hex, alpha = 1) {
     var c;

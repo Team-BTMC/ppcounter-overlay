@@ -55,7 +55,7 @@
         "type": "color",
         "title": "Graph Color",
         "description": "Change the color of the strain graph.",
-        "value": "#B9EAFF"
+        "value": "#2A8270"
     },
     {
       "uniqueID": "MultiplierColorEnabled",
