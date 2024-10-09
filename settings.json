@@ -30,12 +30,24 @@
         "description": "Change the smoothing of the strain graph.",
         "options": [
             "Raw data",
-            "Small smoothing",
-            "Smoothing",
-            "Big smooth",
+            "Roughly smooth",
+            "Softly smooth",
+            "Silky smooth",
+            "Velvety smooth",
             "Manscaped smooth"
         ],
         "value": "Smoothing"
+    },
+    {
+        "uniqueID": "GraphPos",
+        "type": "options",
+        "title": "Graph Position",
+        "description": "Change the position of the strain graph.",
+        "options": [
+            "Below",
+            "Above"
+        ],
+        "value": "Below"
     },
     {
         "uniqueID": "CutoffPos",
@@ -44,11 +56,20 @@
         "description": "Change the position of the cut off line of the pp-counter.",
         "options": [
             "Top",
+            "Bottom",
             "Left",
             "Right",
             "None"
         ],
         "value": "Top"
+    },
+    {
+        "uniqueID": "HitJudgements",
+        "type": "checkbox",
+        "title": "Disable Hit Judgements",
+        "description": "Disable the hit judgements overlayed on the graph",
+        "options": "Enabled, Disabled",
+        "value": "Disabled"
     },
     {
         "uniqueID": "GraphColor",
@@ -58,11 +79,11 @@
         "value": "#2A8270"
     },
     {
-      "uniqueID": "MultiplierColorEnabled",
-      "type": "checkbox",
-      "title": "Dynamic statistic colors",
-      "description": "Dynamically change the beatmap statistic colors based on mods or bpm shifts.",
-      "value": "Enabled"
+        "uniqueID": "MultiplierColorEnabled",
+        "type": "checkbox",
+        "title": "Dynamic statistic colors",
+        "description": "Dynamically change the beatmap statistic colors based on mods or bpm shifts.",
+        "value": "Enabled"
     },
     {
         "uniqueID": "GradientColor1",

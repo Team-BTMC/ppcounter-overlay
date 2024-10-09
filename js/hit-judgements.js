@@ -25,7 +25,7 @@ function createHitJudgement(type, positionPercentage, isSliderBreak) {
  * @param {boolean} isSliderBreak
  * @return {void}
  */
-export function hitJudgementsAdd(root, type, positionPercentage, isSliderBreak = false) {
+export function hitJudgementsAdd(root, type, positionPercentage, isSliderBreak = false) {    
     if (root === undefined || root === null) {
         return;
     }

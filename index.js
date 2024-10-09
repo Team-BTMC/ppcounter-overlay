@@ -50,13 +50,14 @@ const cache = {
 
 /** @type {0 | 1 | 2 | 3 | 4 | 5} from 0 (no smoothing) to 5 (max smoothing)  */
 let graphSmoothing = 2;
-const gradientDarker = new GraphFill(new Color(185, 234, 255, 0.4), Color.TRANSPARENT);
+const gradientDarker = new GraphFill(new Color(185, 234, 255, 0.3), Color.TRANSPARENT);
 const gradientLighter = new GraphFill(new Color(185, 234, 255, 0.7));
 let configDarker = createChartConfig(gradientDarker);
 let configLighter = createChartConfig(gradientLighter);
 let chartDarker;
 let chartLighter;
 let chartProgress;
+let hitJudgementsCleared;
 const hitJudgementsElement = document.querySelector('#hit-judgements');
 
 function renderGraph(graphData) {
@@ -148,6 +149,28 @@ socket.commands((data) => {
 
         if (message['ShowVisualizer'] != null) {
             cache['ShowVisualizer'] = message['ShowVisualizer'];
+
+            if (Boolean(cache['ShowVisualizer']) == true) {
+                let visualizerElements = document.getElementsByClassName('beat-lighting');
+                for (let i = 0; i < visualizerElements.length; i++) {
+                    visualizerElements[i].style.display = 'block';
+                }
+            } else {
+                let visualizerElements = document.getElementsByClassName('beat-lighting');
+                for (let i = 0; i < visualizerElements.length; i++) {
+                    visualizerElements[i].style.display = 'none';
+                }
+            }
+        }
+
+        if (message['HitJudgements'] != null) {
+            cache['HitJudgements'] = message['HitJudgements'];
+
+            if (Boolean(cache['HitJudgements']) == true) {
+                document.getElementById('hit-judgements').style.display = 'none';
+            } else {
+                document.getElementById('hit-judgements').style.display = 'block';
+            }
         }
 
         if (message['GraphColor'] != null) {
@@ -165,10 +188,11 @@ socket.commands((data) => {
         if (message['GraphSmoothing'] != null) {
             const smoothingMap = {
                 "Raw data": "0",
-                "Small smoothing": "1",
-                "Smoothing": "2",
-                "Big smooth": "3",
-                "Manscaped smooth": "4"
+                "Roughly smooth": "1",
+                "Softly smooth": "2",
+                "Silky smooth": "3",
+                "Velvety smooth": "4",
+                "Manscaped smooth:": "5"
             };
 
             graphSmoothing = smoothingMap[message['GraphSmoothing']];
@@ -178,6 +202,7 @@ socket.commands((data) => {
         if (message['CutoffPos'] != null) {
             const cutoffMap = {
                 "Top": "border-top-0",
+                "Bottom": "border-bottom-0",
                 "Left": "border-left-0",
                 "Right": "border-right-0",
                 "None": "border-none"
@@ -207,6 +232,18 @@ socket.commands((data) => {
 
                 mainContainer.classList.add(cutoffMap[cutoffPosition])
                 document.body.style.marginInline = cutoffStyleMap[cutoffPosition]
+            }
+        }
+
+        if (message['GraphPos'] != null) {
+            const difficultyGraph = document.querySelector('.difficulty-graph');
+            
+            if (message['GraphPos'] === 'Above') {
+                difficultyGraph.classList.add('flipped');
+                document.body.style.setProperty('flex-direction', 'column-reverse');
+            } else if (message['GraphPos'] === 'Below') {
+                difficultyGraph.classList.remove('flipped');
+                document.body.style.setProperty('flex-direction', 'column');
             }
         }
 
@@ -277,6 +314,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
         if (cache.h100 !== hits['100']) {
             cache.h100 = hits['100'];
             h100.update(hits['100']);
+            hitJudgementsCleared = false;
 
             if (hits['100'] > 0 && state.name === "Play") {
                 cache.sliderBreaks = hits['sliderBreaks'];
@@ -287,6 +325,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
         if (cache.h50 !== hits['50']) {
             cache.h50 = hits['50'];
             h50.update(hits['50']);
+            hitJudgementsCleared = false;
 
             if (hits['50'] > 0 && state.name === "Play") {
                 cache.sliderBreaks = hits['sliderBreaks'];
@@ -297,6 +336,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
         if (cache.h0 !== hits['0']) {
             cache.h0 = hits['0'];
             h0.update(hits['0']);
+            hitJudgementsCleared = false;
 
             if (hits['0'] > 0 && state.name === "Play") {
                 cache.sliderBreaks = hits['sliderBreaks'];
@@ -304,8 +344,9 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             }
         }
 
-        if (hits['100'] === 0 && hits['50'] === 0 && hits['0'] === 0) {
+        if (hits['100'] === 0 && hits['50'] === 0 && hits['0'] === 0 && !hitJudgementsCleared && state.name !== 'ResultScreen') {
             hitJudgementsClear(hitJudgementsElement);
+            hitJudgementsCleared = true;
         }
 
         if (cache.pp !== Math.round(pp.current)) {
@@ -439,9 +480,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             document.getElementById('ppFC').innerHTML = Math.round(performance.accuracy[100]).toString();
         }
 
-        if (Boolean(cache['ShowVisualizer'])) {
-            document.querySelector('.beat-lighting').style.opacity = 1;
-        }
+
 
         const ppValueContainer = document.querySelector('.ppFC');
         const ppCurrent = document.querySelector('.ppCurrent')

@@ -26,11 +26,10 @@
 }
 
 body {
-    background-color: black;
     margin-inline: 20px;
-
     color: white;
     line-height: 1;
+    display: flex;
 }
 
 .odometer {
@@ -109,6 +108,7 @@ body {
 }
 
 .beat-lighting {
+    display: none;
     position: absolute;
     top: 13.5px;
 
@@ -140,6 +140,13 @@ body {
 
     border-top-left-radius: 0;
     border-top-right-radius: 0;
+}
+
+.border-bottom-0 {
+    border-bottom: 0;
+
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
 }
 
 .border-left-0 {

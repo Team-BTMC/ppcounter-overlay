@@ -28,81 +28,101 @@
 			rel="stylesheet"
 			href="styles/difficulty-graph.css"
 		/>
-        <link
-            rel="stylesheet"
-            href="styles/hit-judgements.css"
-        />
+		<link
+			rel="stylesheet"
+			href="styles/hit-judgements.css"
+		/>
 	</head>
 
-	<body>
-		<div class="beat-lighting"></div>
-		<div class="main-container">
-			<div class="left">
-				<div class="song-info">
-					<div class="title-wrapper">
-						<span id="title" class="title">Couldn't find an artist & title!</span>
+	<body style="flex-direction: column">
+		<div class="counter">
+			<div class="beat-lighting"></div>
+			<div class="main-container">
+				<div class="left">
+					<div class="song-info">
+						<div class="title-wrapper">
+							<span
+								id="title"
+								class="title"
+								>Couldn't find an artist & title!</span
+							>
+						</div>
+						<div class="diff-wrapper">
+							<span
+								id="diff"
+								class="diff"
+								>Couldn't find a difficulty!</span
+							>
+						</div>
 					</div>
-					<div class="diff-wrapper">
-						<span id="diff" class="diff">Couldn't find a difficulty!</span>
+					<div class="map-info">
+						<div
+							class="sr-container"
+							id="srCont"
+						>
+							<span id="sr">8.1</span>
+							<div class="sr-star"></div>
+						</div>
+						<div class="map-stats">
+							<div class="bpm">
+								<span>BPM</span>
+								<span id="bpm">145</span>
+							</div>
+
+							<div class="cs">
+								<span>CS</span>
+								<span id="cs">4</span>
+							</div>
+
+							<div class="ar">
+								<span>AR</span>
+								<span id="ar">8</span>
+							</div>
+
+							<div class="od">
+								<span>OD</span>
+								<span id="od">7.5</span>
+							</div>
+
+							<div class="hp">
+								<span>HP</span>
+								<span id="hp">6</span>
+							</div>
+						</div>
 					</div>
+
+					<div class="bg-underlay"></div>
+					<img
+						id="bg"
+						class="bg"
+						src="./assets/noimage.png"
+					/>
+					<div class="bg-overlay"></div>
 				</div>
-				<div class="map-info">
-					<div class="sr-container" id="srCont">
-						<span id="sr">8.1</span>
-						<div class="sr-star"></div>
-					</div>
-					<div class="map-stats">
-						<div class="bpm">
-							<span>BPM</span>
-							<span id="bpm">145</span>
+				<div class="right">
+					<div class="hit-errors">
+						<div class="hit">
+							<span id="h100">0</span>
+							<div class="hit-icon green"></div>
 						</div>
-
-						<div class="cs">
-							<span>CS</span>
-							<span id="cs">4</span>
+						<div class="hit">
+							<span id="h50">0</span>
+							<div class="hit-icon yellow"></div>
 						</div>
-
-						<div class="ar">
-							<span>AR</span>
-							<span id="ar">8</span>
-						</div>
-
-						<div class="od">
-							<span>OD</span>
-							<span id="od">7.5</span>
-						</div>
-
-						<div class="hp">
-							<span>HP</span>
-							<span id="hp">6</span>
+						<div class="hit">
+							<span id="h0">0</span>
+							<div class="hit-icon red"></div>
 						</div>
 					</div>
-				</div>
-
-				<div class="bg-underlay"></div>
-				<img id="bg" class="bg" src="./assets/noimage.png">
-				<div class="bg-overlay"></div>
-
-			</div>
-			<div class="right">
-				<div class="hit-errors">
-					<div class="hit">
-						<span id="h100">0</span>
-						<div class="hit-icon green"></div>
+					<div class="pp">
+						<span class="ppCurrent"
+							><span id="ppCurrent">228</span>pp</span
+						>
+						<span class="slash">/</span>
+						<span class="ppFC"
+							><span id="ppFC">1337pp</span>pp</span
+						>
 					</div>
-					<div class="hit">
-						<span id="h50">0</span>
-						<div class="hit-icon yellow"></div>
-					</div>
-					<div class="hit">
-						<span id="h0">0</span>
-						<div class="hit-icon red"></div>
-					</div>
-				</div>
-				<div class="pp">
-					<span class="ppCurrent"><span id="ppCurrent">228</span>pp</span>
-					<span class="slash">/</span>
-					<span class="ppFC"><span id="ppFC">1337pp</span>pp</span>
 				</div>
 			</div>
 		</div>
@@ -120,7 +140,7 @@
 					height="64"
 				></canvas>
 			</div>
-            <div id="hit-judgements"></div>
+			<div id="hit-judgements"></div>
 		</div>
 
 		<!--        OTHER SCRIPTS        -->
