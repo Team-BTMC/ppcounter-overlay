@@ -108,7 +108,6 @@ body {
 }
 
 .beat-lighting {
-    display: none;
     position: absolute;
     top: 13.5px;
 
@@ -117,7 +116,9 @@ body {
 
     box-shadow: 0 0 20px var(--outlineColor);
 
-    opacity: 0;
+    animation-name: bpm-animation;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
 }
 
 @keyframes bpm-animation {
