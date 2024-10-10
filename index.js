@@ -392,7 +392,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             cache.bpm = beatmap.stats.bpm.realtime;
             bpmValue.innerHTML = beatmap.stats.bpm.realtime;
 
-            document.querySelector('.beat-lighting').setAttribute('style', `animation: bpm-animation ${1000 / (beatmap.stats.bpm.realtime / 60)}ms infinite linear;`)
+            document.querySelector('.beat-lighting').style.animationDuration = `${1000 / (beatmap.stats.bpm.realtime / 60)}ms`;
         }
 
         if (cache.cs !== beatmap.stats.cs.converted) {
