@@ -1,5 +1,4 @@
 export class Color {
-    static TRANSPARENT = new Color(0, 0, 0, 0);
 
     static fromHex(literal) {
         let c;
@@ -20,54 +19,42 @@ export class Color {
 
 
 
-    #red;
-    #green;
-    #blue;
-    #alpha;
 
     constructor(red, green, blue, alpha = 1) {
-        this.#red = red;
-        this.#green = green;
-        this.#blue = blue;
-        this.#alpha = alpha;
+        this._red = red;
+        this._green = green;
+        this._blue = blue;
+        this._alpha = alpha;
     }
 
 
 
     setAlpha(alpha) {
-        this.#alpha = alpha;
+        this._alpha = alpha;
         return this;
     }
 
     getAlpha() {
-        return this.#alpha;
+        return this._alpha;
     }
 
     clone() {
         return new Color(
-            this.#red,
-            this.#green,
-            this.#blue,
-            this.#alpha
+            this._red,
+            this._green,
+            this._blue,
+            this._alpha
         );
     }
 
     toString() {
-        return `rgba(${this.#red}, ${this.#green}, ${this.#blue}, ${this.#alpha})`;
+        return `rgba(${this._red}, ${this._green}, ${this._blue}, ${this._alpha})`;
     }
 }
 
-
+Color.TRANSPARENT = new Color(0, 0, 0, 0);
 
 export default class GraphFill {
-    #gradient;
-    #width;
-    #height;
-    /** @type {Color} */
-    #fill;
-    /** @type {Color} */
-    #border;
-    #colorUsed;
 
 
 
@@ -76,8 +63,12 @@ export default class GraphFill {
      * @param border
      */
     constructor(fill, border = undefined) {
-        this.#fill = fill;
-        this.#border = border !== undefined ? border : fill.clone().setAlpha(1);
+        this._fill = fill;
+        this._border = border !== undefined ? border : fill.clone().setAlpha(1);
+        this._gradient = undefined;
+        this._width = undefined;
+        this._height = undefined;
+        this._colorUsed = undefined;
     }
 
 
@@ -86,7 +77,7 @@ export default class GraphFill {
      * @param {Color} color
      */
     setFill(color) {
-        this.#fill = color;
+        this._fill = color;
         return this;
     }
 
@@ -94,7 +85,7 @@ export default class GraphFill {
      * @param {Color} color
      */
     setBorder(color) {
-        this.#border = color;
+        this._border = color;
         return this;
     }
 
@@ -102,25 +93,25 @@ export default class GraphFill {
         const chartWidth = chartArea.right - chartArea.left;
         const chartHeight = chartArea.bottom - chartArea.top;
 
-        if (this.#gradient === undefined
-            || this.#width !== chartWidth
-            || this.#height !== chartHeight
-            || this.#colorUsed !== this.#fill.toString()) {
+        if (this._gradient === undefined
+            || this._width !== chartWidth
+            || this._height !== chartHeight
+            || this._colorUsed !== this._fill.toString()) {
             // Create the gradient because this is either the first render or the size of the chart has changed
 
-            this.#width = chartWidth;
-            this.#height = chartHeight;
-            this.#gradient = context.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+            this._width = chartWidth;
+            this._height = chartHeight;
+            this._gradient = context.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
 
-            this.#gradient.addColorStop(0, this.#fill.clone().setAlpha(0.1).toString());
-            this.#gradient.addColorStop(0.4, this.#fill.toString());
+            this._gradient.addColorStop(0, this._fill.clone().setAlpha(0.1).toString());
+            this._gradient.addColorStop(0.4, this._fill.toString());
         }
 
-        return this.#gradient;
+        return this._gradient;
     }
 
     border() {
-        return () => this.#border.toString();
+        return () => this._border.toString();
     }
 
     /**

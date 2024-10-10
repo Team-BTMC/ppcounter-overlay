@@ -181,8 +181,8 @@ socket.commands((data) => {
               gradientLighter.setFill(fill.setAlpha(0.5));
               gradientLighter.setBorder(fill.clone().setAlpha(1));
 
-              chartDarker?.update();
-              chartLighter?.update();
+              chartDarker && chartDarker.update();
+              chartLighter && chartLighter.update();
         }
 
         if (message['GraphSmoothing'] != null) {
