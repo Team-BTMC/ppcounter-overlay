@@ -260,7 +260,7 @@ socket.commands((data) => {
             document.body.style.setProperty('--dashedLineColor', message['DashedLinesColor']);
         };
         if (message['100Color'] != null) {
-            document.body.style.setProperty('--hunderdColor', message['100Color']);
+            document.body.style.setProperty('--hundredColor', message['100Color']);
         };
         if (message['50Color'] != null) {
             document.body.style.setProperty('--fiftyColor', message['50Color']);
