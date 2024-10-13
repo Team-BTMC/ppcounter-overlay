@@ -29,21 +29,21 @@ new Odometer({
 });
 
 const cache = {
-  h100: -1,
-  h50: -1,
-  h0: -1,
-  sliderBreaks: -1,
-  accuracy: -1,
+  h100: 0,
+  h50: 0,
+  h0: 0,
+  sliderBreaks: 0,
+  accuracy: 0,
   title: "",
   artist: "",
   difficulty: "",
-  bpm: -1,
-  cs: -1,
-  ar: -1,
-  od: -1,
-  hp: -1,
-  maxSR: -1,
-  ppFC: -1,
+  bpm: 0,
+  cs: 0,
+  ar: 0,
+  od: 0,
+  hp: 0,
+  maxSR: 0,
+  ppFC: 0,
   background: "",
   difficultyGraph: ''
 };
@@ -344,9 +344,12 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             }
         }
 
-        if (hits['100'] === 0 && hits['50'] === 0 && hits['0'] === 0 && !hitJudgementsCleared && state.name !== 'ResultScreen') {
+        const isResultScreen = ['ResultScreen', 'RankingVs', 'RankingTagCoop', 'RankingTeam'].includes(state.name);
+
+        if (hits['100'] === 0 && hits['50'] === 0 && hits['0'] === 0 && !hitJudgementsCleared && !isResultScreen) {
             hitJudgementsClear(hitJudgementsElement);
             hitJudgementsCleared = true;
+            cache.sliderBreaks = 0;
         }
 
         if (cache.pp !== Math.round(pp.current)) {
