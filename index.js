@@ -29,23 +29,23 @@ new Odometer({
 });
 
 const cache = {
-  h100: -1,
-  h50: -1,
-  h0: -1,
-  sliderBreaks: -1,
-  accuracy: -1,
-  title: "",
-  artist: "",
-  difficulty: "",
-  bpm: -1,
-  cs: -1,
-  ar: -1,
-  od: -1,
-  hp: -1,
-  maxSR: -1,
-  ppFC: -1,
-  background: "",
-  difficultyGraph: ''
+    h100: 0,
+    h50: 0,
+    h0: 0,
+    sliderBreaks: 0,
+    accuracy: 0,
+    title: "",
+    artist: "",
+    difficulty: "",
+    bpm: 0,
+    cs: 0,
+    ar: 0,
+    od: 0,
+    hp: 0,
+    maxSR: 0,
+    ppFC: 0,
+    background: "",
+    difficultyGraph: ''
 };
 
 /** @type {0 | 1 | 2 | 3 | 4 | 5} from 0 (no smoothing) to 5 (max smoothing)  */
@@ -174,15 +174,15 @@ socket.commands((data) => {
         }
 
         if (message['GraphColor'] != null) {
-              gradientDarker.setFill(Color.fromHex(message['GraphColor']).setAlpha(0.5));
-              gradientDarker.setBorder(Color.TRANSPARENT.clone());
+            gradientDarker.setFill(Color.fromHex(message['GraphColor']).setAlpha(0.5));
+            gradientDarker.setBorder(Color.TRANSPARENT.clone());
 
-              const fill = Color.fromHex(message['GraphColor']);
-              gradientLighter.setFill(fill.setAlpha(0.5));
-              gradientLighter.setBorder(fill.clone().setAlpha(1));
+            const fill = Color.fromHex(message['GraphColor']);
+            gradientLighter.setFill(fill.setAlpha(0.5));
+            gradientLighter.setBorder(fill.clone().setAlpha(1));
 
-              chartDarker && chartDarker.update();
-              chartLighter && chartLighter.update();
+            chartDarker && chartDarker.update();
+            chartLighter && chartLighter.update();
         }
 
         if (message['GraphSmoothing'] != null) {
@@ -237,7 +237,7 @@ socket.commands((data) => {
 
         if (message['GraphPos'] != null) {
             const difficultyGraph = document.querySelector('.difficulty-graph');
-            
+
             if (message['GraphPos'] === 'Above') {
                 difficultyGraph.classList.add('flipped');
                 document.body.style.setProperty('flex-direction', 'column-reverse');
@@ -260,7 +260,7 @@ socket.commands((data) => {
             document.body.style.setProperty('--dashedLineColor', message['DashedLinesColor']);
         };
         if (message['100Color'] != null) {
-            document.body.style.setProperty('--hunderdColor', message['100Color']);
+            document.body.style.setProperty('--hundredColor', message['100Color']);
         };
         if (message['50Color'] != null) {
             document.body.style.setProperty('--fiftyColor', message['50Color']);
@@ -310,8 +310,9 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
         let hits = state.name === 'ResultScreen' ? resultsScreen.hits : play.hits;
 
         const isSliderBreak = cache.sliderBreaks !== hits['sliderBreaks'];
+        const isMultiplayerResultScreen = ['RankingVs', 'RankingTagCoop', 'RankingTeam'].includes(state.name);
 
-        if (cache.h100 !== hits['100']) {
+        if (cache.h100 !== hits['100'] && !isMultiplayerResultScreen) {
             cache.h100 = hits['100'];
             h100.update(hits['100']);
             hitJudgementsCleared = false;
@@ -322,7 +323,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             }
         }
 
-        if (cache.h50 !== hits['50']) {
+        if (cache.h50 !== hits['50'] && !isMultiplayerResultScreen) {
             cache.h50 = hits['50'];
             h50.update(hits['50']);
             hitJudgementsCleared = false;
@@ -333,7 +334,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             }
         }
 
-        if (cache.h0 !== hits['0']) {
+        if (cache.h0 !== hits['0'] && !isMultiplayerResultScreen) {
             cache.h0 = hits['0'];
             h0.update(hits['0']);
             hitJudgementsCleared = false;
@@ -344,9 +345,12 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             }
         }
 
-        if (hits['100'] === 0 && hits['50'] === 0 && hits['0'] === 0 && !hitJudgementsCleared && state.name !== 'ResultScreen') {
+        const isResultScreen = state.name === 'ResultScreen' || isMultiplayerResultScreen;
+
+        if (hits['100'] === 0 && hits['50'] === 0 && hits['0'] === 0 && !hitJudgementsCleared && !isResultScreen) {
             hitJudgementsClear(hitJudgementsElement);
             hitJudgementsCleared = true;
+            cache.sliderBreaks = 0;
         }
 
         if (cache.pp !== Math.round(pp.current)) {
@@ -408,7 +412,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
 
             csBox.style.color = csBoxTextColor;
             cache.cs = beatmap.stats.cs.converted;
-            csValue.innerHTML = Math.round(beatmap.stats.cs.converted*100)/100;
+            csValue.innerHTML = Math.round(beatmap.stats.cs.converted * 100) / 100;
         }
 
         if (cache.ar !== beatmap.stats.ar.converted) {
@@ -424,7 +428,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
 
             arBox.style.color = arBoxTextColor;
             cache.ar = beatmap.stats.ar.converted;
-            arValue.innerHTML = Math.round(beatmap.stats.ar.converted*100)/100;
+            arValue.innerHTML = Math.round(beatmap.stats.ar.converted * 100) / 100;
         }
 
         if (cache.od !== beatmap.stats.od.converted) {
@@ -440,7 +444,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
 
             odBox.style.color = odBoxTextColor;
             cache.od = beatmap.stats.od.converted;
-            odValue.innerHTML = Math.round(beatmap.stats.od.converted*100)/100;
+            odValue.innerHTML = Math.round(beatmap.stats.od.converted * 100) / 100;
         }
 
         if (cache.hp !== beatmap.stats.hp.converted) {
@@ -456,7 +460,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
 
             hpBox.style.color = hpBoxTextColor;
             cache.hp = beatmap.stats.hp.converted;
-            hpValue.innerHTML = Math.round(beatmap.stats.hp.converted*100)/100;
+            hpValue.innerHTML = Math.round(beatmap.stats.hp.converted * 100) / 100;
         }
 
         if (cache.maxSR !== beatmap.stats.stars.total) {
@@ -489,7 +493,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
         const hitErrorsContainer = document.querySelector('.hit-errors')
 
 
-        if (state.name !== 'Play' && state.name !== 'ResultScreen') {
+        if (state.name !== 'Play' && state.name !== 'ResultScreen' && !isMultiplayerResultScreen) {
             const pp = document.getElementById('ppFC');
 
             const hitErrors = document.getElementById('ppFC');
