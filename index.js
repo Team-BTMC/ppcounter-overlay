@@ -306,18 +306,18 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             chartProgress.style.width = String(percentage) + "%";
         }
 
-        let pp = state.name === 'ResultScreen' ? resultsScreen.pp : play.pp;
-        let hits = state.name === 'ResultScreen' ? resultsScreen.hits : play.hits;
+        let pp = state.name === 'resultScreen' ? resultsScreen.pp : play.pp;
+        let hits = state.name === 'resultScreen' ? resultsScreen.hits : play.hits;
 
         const isSliderBreak = cache.sliderBreaks !== hits['sliderBreaks'];
-        const isMultiplayerResultScreen = ['RankingVs', 'RankingTagCoop', 'RankingTeam'].includes(state.name);
+        const isMultiplayerResultScreen = ['rankingVs', 'rankingTagCoop', 'rankingTeam'].includes(state.name);
 
         if (cache.h100 !== hits['100'] && !isMultiplayerResultScreen) {
             cache.h100 = hits['100'];
             h100.update(hits['100']);
             hitJudgementsCleared = false;
 
-            if (hits['100'] > 0 && state.name === "Play") {
+            if (hits['100'] > 0 && state.name === 'play') {
                 cache.sliderBreaks = hits['sliderBreaks'];
                 hitJudgementsAdd(hitJudgementsElement, "100", percentage, isSliderBreak);
             }
@@ -328,7 +328,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             h50.update(hits['50']);
             hitJudgementsCleared = false;
 
-            if (hits['50'] > 0 && state.name === "Play") {
+            if (hits['50'] > 0 && state.name === 'play') {
                 cache.sliderBreaks = hits['sliderBreaks'];
                 hitJudgementsAdd(hitJudgementsElement, "50", percentage, isSliderBreak);
             }
@@ -339,13 +339,13 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             h0.update(hits['0']);
             hitJudgementsCleared = false;
 
-            if (hits['0'] > 0 && state.name === "Play") {
+            if (hits['0'] > 0 && state.name === 'play') {
                 cache.sliderBreaks = hits['sliderBreaks'];
                 hitJudgementsAdd(hitJudgementsElement, "x", percentage, isSliderBreak);
             }
         }
 
-        const isResultScreen = state.name === 'ResultScreen' || isMultiplayerResultScreen;
+        const isResultScreen = state.name === 'resultScreen' || isMultiplayerResultScreen;
 
         if (hits['100'] === 0 && hits['50'] === 0 && hits['0'] === 0 && !hitJudgementsCleared && !isResultScreen) {
             hitJudgementsClear(hitJudgementsElement);
@@ -473,10 +473,10 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             document.getElementById('srCont').style.backgroundColor = getDiffColour(cache.maxSR);
         }
 
-        if ((state.name === 'Play' || state.name === 'ResultScreen') && Boolean(cache['UseSSPP'])) {
+        if ((state.name === 'play' || state.name === 'resultScreen') && Boolean(cache['UseSSPP'])) {
             cache.ppSS = performance.accuracy[100];
             document.getElementById('ppFC').innerHTML = Math.round(performance.accuracy[100]).toString();
-        } else if ((state.name === 'Play' || state.name === 'ResultScreen') && cache.ppFC !== pp.fc) {
+        } else if ((state.name === 'play' || state.name === 'resultScreen') && cache.ppFC !== pp.fc) {
             cache.ppFC = pp.fc;
             document.getElementById('ppFC').innerHTML = Math.round(pp.fc).toString();
         } else if (cache.ppSS !== performance.accuracy[100]) {
@@ -493,7 +493,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
         const hitErrorsContainer = document.querySelector('.hit-errors')
 
 
-        if (state.name !== 'Play' && state.name !== 'ResultScreen' && !isMultiplayerResultScreen) {
+        if (state.name !== 'play' && state.name !== 'resultScreen' && !isMultiplayerResultScreen) {
             const pp = document.getElementById('ppFC');
 
             const hitErrors = document.getElementById('ppFC');
