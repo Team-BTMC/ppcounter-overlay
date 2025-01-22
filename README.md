@@ -4,6 +4,12 @@ A tosu overlay created and designed for BTMC (twitch.tv/BTMC) by happpy24
 
 ### Find tosu here: https://github.com/KotRikD/tosu
 
+## Screenshots!
+![Screenshot 2024-11-14 001123](https://github.com/user-attachments/assets/b1573bd6-3719-49eb-9576-193c2ee50de7)
+![Screenshot 2024-11-14 001230](https://github.com/user-attachments/assets/67a28588-ec7a-43a9-af34-00daed6dd9b0)
+old gif but whatever
+![gifusage](https://github.com/user-attachments/assets/dd4e5a5e-0972-4219-9830-7fcc9992dd5d)
+
 ## Use Case
 
 |                 |                     |
