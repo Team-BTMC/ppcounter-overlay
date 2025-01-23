@@ -29,23 +29,23 @@ new Odometer({
 });
 
 const cache = {
-  h100: -1,
-  h50: -1,
-  h0: -1,
-  sliderBreaks: -1,
-  accuracy: -1,
-  title: "",
-  artist: "",
-  difficulty: "",
-  bpm: -1,
-  cs: -1,
-  ar: -1,
-  od: -1,
-  hp: -1,
-  maxSR: -1,
-  ppFC: -1,
-  background: "",
-  difficultyGraph: ''
+    h100: 0,
+    h50: 0,
+    h0: 0,
+    sliderBreaks: 0,
+    accuracy: 0,
+    title: "",
+    artist: "",
+    difficulty: "",
+    bpm: 0,
+    cs: 0,
+    ar: 0,
+    od: 0,
+    hp: 0,
+    maxSR: 0,
+    ppFC: 0,
+    background: "",
+    difficultyGraph: ''
 };
 
 /** @type {0 | 1 | 2 | 3 | 4 | 5} from 0 (no smoothing) to 5 (max smoothing)  */
@@ -174,15 +174,15 @@ socket.commands((data) => {
         }
 
         if (message['GraphColor'] != null) {
-              gradientDarker.setFill(Color.fromHex(message['GraphColor']).setAlpha(0.5));
-              gradientDarker.setBorder(Color.TRANSPARENT.clone());
+            gradientDarker.setFill(Color.fromHex(message['GraphColor']).setAlpha(0.5));
+            gradientDarker.setBorder(Color.TRANSPARENT.clone());
 
-              const fill = Color.fromHex(message['GraphColor']);
-              gradientLighter.setFill(fill.setAlpha(0.5));
-              gradientLighter.setBorder(fill.clone().setAlpha(1));
+            const fill = Color.fromHex(message['GraphColor']);
+            gradientLighter.setFill(fill.setAlpha(0.5));
+            gradientLighter.setBorder(fill.clone().setAlpha(1));
 
-              chartDarker && chartDarker.update();
-              chartLighter && chartLighter.update();
+            chartDarker && chartDarker.update();
+            chartLighter && chartLighter.update();
         }
 
         if (message['GraphSmoothing'] != null) {
@@ -237,7 +237,7 @@ socket.commands((data) => {
 
         if (message['GraphPos'] != null) {
             const difficultyGraph = document.querySelector('.difficulty-graph');
-            
+
             if (message['GraphPos'] === 'Above') {
                 difficultyGraph.classList.add('flipped');
                 document.body.style.setProperty('flex-direction', 'column-reverse');
@@ -260,7 +260,7 @@ socket.commands((data) => {
             document.body.style.setProperty('--dashedLineColor', message['DashedLinesColor']);
         };
         if (message['100Color'] != null) {
-            document.body.style.setProperty('--hunderdColor', message['100Color']);
+            document.body.style.setProperty('--hundredColor', message['100Color']);
         };
         if (message['50Color'] != null) {
             document.body.style.setProperty('--fiftyColor', message['50Color']);
@@ -306,47 +306,51 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             chartProgress.style.width = String(percentage) + "%";
         }
 
-        let pp = state.name === 'ResultScreen' ? resultsScreen.pp : play.pp;
-        let hits = state.name === 'ResultScreen' ? resultsScreen.hits : play.hits;
+        let pp = state.name === 'resultScreen' ? resultsScreen.pp : play.pp;
+        let hits = state.name === 'resultScreen' ? resultsScreen.hits : play.hits;
 
         const isSliderBreak = cache.sliderBreaks !== hits['sliderBreaks'];
+        const isMultiplayerResultScreen = ['rankingVs', 'rankingTagCoop', 'rankingTeam'].includes(state.name);
 
-        if (cache.h100 !== hits['100']) {
+        if (cache.h100 !== hits['100'] && !isMultiplayerResultScreen) {
             cache.h100 = hits['100'];
             h100.update(hits['100']);
             hitJudgementsCleared = false;
 
-            if (hits['100'] > 0 && state.name === "Play") {
+            if (hits['100'] > 0 && state.name === 'play') {
                 cache.sliderBreaks = hits['sliderBreaks'];
                 hitJudgementsAdd(hitJudgementsElement, "100", percentage, isSliderBreak);
             }
         }
 
-        if (cache.h50 !== hits['50']) {
+        if (cache.h50 !== hits['50'] && !isMultiplayerResultScreen) {
             cache.h50 = hits['50'];
             h50.update(hits['50']);
             hitJudgementsCleared = false;
 
-            if (hits['50'] > 0 && state.name === "Play") {
+            if (hits['50'] > 0 && state.name === 'play') {
                 cache.sliderBreaks = hits['sliderBreaks'];
                 hitJudgementsAdd(hitJudgementsElement, "50", percentage, isSliderBreak);
             }
         }
 
-        if (cache.h0 !== hits['0']) {
+        if (cache.h0 !== hits['0'] && !isMultiplayerResultScreen) {
             cache.h0 = hits['0'];
             h0.update(hits['0']);
             hitJudgementsCleared = false;
 
-            if (hits['0'] > 0 && state.name === "Play") {
+            if (hits['0'] > 0 && state.name === 'play') {
                 cache.sliderBreaks = hits['sliderBreaks'];
                 hitJudgementsAdd(hitJudgementsElement, "x", percentage, isSliderBreak);
             }
         }
 
-        if (hits['100'] === 0 && hits['50'] === 0 && hits['0'] === 0 && !hitJudgementsCleared && state.name !== 'ResultScreen') {
+        const isResultScreen = state.name === 'resultScreen' || isMultiplayerResultScreen;
+
+        if (hits['100'] === 0 && hits['50'] === 0 && hits['0'] === 0 && !hitJudgementsCleared && !isResultScreen) {
             hitJudgementsClear(hitJudgementsElement);
             hitJudgementsCleared = true;
+            cache.sliderBreaks = 0;
         }
 
         if (cache.pp !== Math.round(pp.current)) {
@@ -408,7 +412,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
 
             csBox.style.color = csBoxTextColor;
             cache.cs = beatmap.stats.cs.converted;
-            csValue.innerHTML = Math.round(beatmap.stats.cs.converted*100)/100;
+            csValue.innerHTML = Math.round(beatmap.stats.cs.converted * 100) / 100;
         }
 
         if (cache.ar !== beatmap.stats.ar.converted) {
@@ -424,7 +428,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
 
             arBox.style.color = arBoxTextColor;
             cache.ar = beatmap.stats.ar.converted;
-            arValue.innerHTML = Math.round(beatmap.stats.ar.converted*100)/100;
+            arValue.innerHTML = Math.round(beatmap.stats.ar.converted * 100) / 100;
         }
 
         if (cache.od !== beatmap.stats.od.converted) {
@@ -440,7 +444,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
 
             odBox.style.color = odBoxTextColor;
             cache.od = beatmap.stats.od.converted;
-            odValue.innerHTML = Math.round(beatmap.stats.od.converted*100)/100;
+            odValue.innerHTML = Math.round(beatmap.stats.od.converted * 100) / 100;
         }
 
         if (cache.hp !== beatmap.stats.hp.converted) {
@@ -456,7 +460,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
 
             hpBox.style.color = hpBoxTextColor;
             cache.hp = beatmap.stats.hp.converted;
-            hpValue.innerHTML = Math.round(beatmap.stats.hp.converted*100)/100;
+            hpValue.innerHTML = Math.round(beatmap.stats.hp.converted * 100) / 100;
         }
 
         if (cache.maxSR !== beatmap.stats.stars.total) {
@@ -469,10 +473,10 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             document.getElementById('srCont').style.backgroundColor = getDiffColour(cache.maxSR);
         }
 
-        if ((state.name === 'Play' || state.name === 'ResultScreen') && Boolean(cache['UseSSPP'])) {
+        if ((state.name === 'play' || state.name === 'resultScreen') && Boolean(cache['UseSSPP'])) {
             cache.ppSS = performance.accuracy[100];
             document.getElementById('ppFC').innerHTML = Math.round(performance.accuracy[100]).toString();
-        } else if ((state.name === 'Play' || state.name === 'ResultScreen') && cache.ppFC !== pp.fc) {
+        } else if ((state.name === 'play' || state.name === 'resultScreen') && cache.ppFC !== pp.fc) {
             cache.ppFC = pp.fc;
             document.getElementById('ppFC').innerHTML = Math.round(pp.fc).toString();
         } else if (cache.ppSS !== performance.accuracy[100]) {
@@ -489,7 +493,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
         const hitErrorsContainer = document.querySelector('.hit-errors')
 
 
-        if (state.name !== 'Play' && state.name !== 'ResultScreen') {
+        if (state.name !== 'play' && state.name !== 'resultScreen' && !isMultiplayerResultScreen) {
             const pp = document.getElementById('ppFC');
 
             const hitErrors = document.getElementById('ppFC');
