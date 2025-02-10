@@ -327,7 +327,7 @@ const h100 = new CountUp('h100', 0, 0, 0, .5, { useEasing: true, useGrouping: tr
 const h50 = new CountUp('h50', 0, 0, 0, .5, { useEasing: true, useGrouping: true, separator: " ", decimal: "." });
 const h0 = new CountUp('h0', 0, 0, 0, .5, { useEasing: true, useGrouping: true, separator: " ", decimal: "." });
 
-const channels = new Set(["aim", "speed"]);
+const channels = new Set(["aim", "aimNoSliders", "flashlight", "speed", "strains", "movement", "color", "rhythm", "stamina"]);
 
 const ppCache = {
     top: document.querySelector('.ppFC').getBoundingClientRect().top,
