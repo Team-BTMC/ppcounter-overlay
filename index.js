@@ -9,7 +9,9 @@ import {
     fastSmooth,
     max
 } from "./js/fast-smooth.js";
-const socket = new WebSocketManager(window.location.host);
+import { hitJudgementsAdd, hitJudgementsClear } from "./js/hit-judgements.js";
+import GraphFill, { Color } from "./js/GraphFill.js";
+const socket = new WebSocketManager('127.0.0.1:24050');
 
 new Odometer({
     el: document.getElementById('bpm'),
@@ -27,30 +29,38 @@ new Odometer({
 });
 
 const cache = {
-    h100: -1,
-    h50: -1,
-    h0: -1,
-    accuracy: -1,
+    h100: 0,
+    h50: 0,
+    h0: 0,
+    sliderBreaks: 0,
+    accuracy: 0,
     title: "",
     artist: "",
     difficulty: "",
-    bpm: -1,
-    cs: -1,
-    ar: -1,
-    od: -1,
-    hp: -1,
-    maxSR: -1,
-    ppFC: -1,
+    bpm: 0,
+    cs: 0,
+    ar: 0,
+    od: 0,
+    hp: 0,
+    maxSR: 0,
+    ppFC: 0,
     background: "",
-    difficultyGraph: ''
+    difficultyGraph: '',
+    skin: "",
+    mods_name: ""
 };
 
-let graphSmoothing = 2; // from 0 (no smoothing) to 5 (max smoothing)
-let configDarker = createChartConfig('rgba(185, 234, 255, 0.4)');
-let configLighter = createChartConfig('rgba(185, 234, 255, 0.7)');
+/** @type {0 | 1 | 2 | 3 | 4 | 5} from 0 (no smoothing) to 5 (max smoothing)  */
+let graphSmoothing = 2;
+const gradientDarker = new GraphFill(new Color(185, 234, 255, 0.3), Color.TRANSPARENT);
+const gradientLighter = new GraphFill(new Color(185, 234, 255, 0.7));
+let configDarker = createChartConfig(gradientDarker);
+let configLighter = createChartConfig(gradientLighter);
 let chartDarker;
 let chartLighter;
 let chartProgress;
+let hitJudgementsCleared;
+const hitJudgementsElement = document.querySelector('#hit-judgements');
 
 function renderGraph(graphData) {
     // Better be sure. In case someone forgets
@@ -135,17 +145,53 @@ socket.commands((data) => {
             }
         }
 
+        if (message['ModsDisabled'] != null) {
+            cache['ModsDisabled'] = message['ModsDisabled'];
+
+            if (Boolean(cache['ModsDisabled']) == true) {
+                document.getElementById('mod-c').style.display = 'none';
+            } else {
+                document.getElementById('mod-c').style.display = 'block';
+            }
+        }
+
         if (message['UseSSPP'] != null) {
             cache['UseSSPP'] = message['UseSSPP'];
         }
 
         if (message['ShowVisualizer'] != null) {
             cache['ShowVisualizer'] = message['ShowVisualizer'];
+
+            if (Boolean(cache['ShowVisualizer']) == true) {
+                let visualizerElements = document.getElementsByClassName('beat-lighting');
+                for (let i = 0; i < visualizerElements.length; i++) {
+                    visualizerElements[i].style.display = 'block';
+                }
+            } else {
+                let visualizerElements = document.getElementsByClassName('beat-lighting');
+                for (let i = 0; i < visualizerElements.length; i++) {
+                    visualizerElements[i].style.display = 'none';
+                }
+            }
+        }
+
+        if (message['HitJudgements'] != null) {
+            cache['HitJudgements'] = message['HitJudgements'];
+
+            if (Boolean(cache['HitJudgements']) == true) {
+                document.getElementById('hit-judgements').style.display = 'none';
+            } else {
+                document.getElementById('hit-judgements').style.display = 'block';
+            }
         }
 
         if (message['GraphColor'] != null) {
-            (chartDarker || configDarker).data.datasets[0].backgroundColor = hexToRgbA(message['GraphColor'], 0.4);
-            (configLighter || configLighter).data.datasets[0].backgroundColor = hexToRgbA(message['GraphColor'], 0.7);
+            gradientDarker.setFill(Color.fromHex(message['GraphColor']).setAlpha(0.5));
+            gradientDarker.setBorder(Color.TRANSPARENT.clone());
+
+            const fill = Color.fromHex(message['GraphColor']);
+            gradientLighter.setFill(fill.setAlpha(0.5));
+            gradientLighter.setBorder(fill.clone().setAlpha(1));
 
             chartDarker && chartDarker.update();
             chartLighter && chartLighter.update();
@@ -154,10 +200,11 @@ socket.commands((data) => {
         if (message['GraphSmoothing'] != null) {
             const smoothingMap = {
                 "Raw data": "0",
-                "Small smoothing": "1",
-                "Smoothing": "2",
-                "Big smooth": "3",
-                "Manscaped smooth": "4"
+                "Roughly smooth": "1",
+                "Softly smooth": "2",
+                "Silky smooth": "3",
+                "Velvety smooth": "4",
+                "Manscaped smooth:": "5"
             };
 
             graphSmoothing = smoothingMap[message['GraphSmoothing']];
@@ -167,6 +214,7 @@ socket.commands((data) => {
         if (message['CutoffPos'] != null) {
             const cutoffMap = {
                 "Top": "border-top-0",
+                "Bottom": "border-bottom-0",
                 "Left": "border-left-0",
                 "Right": "border-right-0",
                 "None": "border-none"
@@ -178,6 +226,17 @@ socket.commands((data) => {
                 "Right": "40px",
                 "None": "20px"
             };
+
+            if (message['CutoffPos'] === 'Left' && message['Skin'] !== 'FREEDOM DiVE REiMAGINED') {
+                document.getElementById('mod-c').style.display = 'none';
+                document.querySelector('.beat-lighting').style.left = '80px';
+            } else if (message['CutoffPos'] === 'Right'&& message['Skin'] !== 'FREEDOM DiVE REiMAGINED'){
+                document.getElementById('mod-c').style.display = 'none';
+                document.querySelector('.beat-lighting').style.left = '120px';
+            } else if (Boolean(cache['ModsDisabled']) == false && message['Skin'] !== 'FREEDOM DiVE REiMAGINED') {
+                document.getElementById('mod-c').style.display = 'block';
+                document.querySelector('.beat-lighting').style.left = '100px';
+            }
 
             let cutoffPosition = message['CutoffPos'];
 
@@ -199,6 +258,36 @@ socket.commands((data) => {
             }
         }
 
+        if (message['GraphPos'] != null) {
+            const difficultyGraph = document.querySelector('.difficulty-graph');
+
+            if (message['GraphPos'] === 'Above') {
+                difficultyGraph.classList.add('flipped');
+                document.body.style.setProperty('flex-direction', 'column-reverse');
+            } else if (message['GraphPos'] === 'Below') {
+                difficultyGraph.classList.remove('flipped');
+                document.body.style.setProperty('flex-direction', 'column');
+            }
+        }
+
+        if (message['Skin'] != null || message['Skin'] != cache['skin']) {
+            cache['skin'] = message['Skin'];
+            const cssfile = document.getElementById('cssfile');
+            if (cssfile) { 
+                if (cache['skin'] === 'FREEDOM DiVE REiMAGINED') {
+                    cssfile.href = 'styles/freedomdive.css';
+                    document.querySelector('.sr-star').style.backgroundColor = '';
+                    document.querySelector('.sr-star').style.backgroundImage = (Math.round(parseFloat(document.getElementById('sr').textContent) * 100) / 100) >= 6.5 ? "url('./assets/freedomDive/fd-star.png')" : "url('./assets/freedomDive/fd-star-black.png')";
+                } else {
+                    cssfile.href = 'styles/default.css';
+                }
+            } else {
+                console.error('CSS file element not found');
+            }
+        }
+        
+        
+
         if (message['GradientColor1'] != null) {
             document.body.style.setProperty('--gradientColor1', message['GradientColor1']);
         };
@@ -212,7 +301,7 @@ socket.commands((data) => {
             document.body.style.setProperty('--dashedLineColor', message['DashedLinesColor']);
         };
         if (message['100Color'] != null) {
-            document.body.style.setProperty('--hunderdColor', message['100Color']);
+            document.body.style.setProperty('--hundredColor', message['100Color']);
         };
         if (message['50Color'] != null) {
             document.body.style.setProperty('--fiftyColor', message['50Color']);
@@ -232,6 +321,7 @@ socket.commands((data) => {
 
 let animationId0;
 let animationId1;
+let animationId2;
 
 const h100 = new CountUp('h100', 0, 0, 0, .5, { useEasing: true, useGrouping: true, separator: " ", decimal: "." });
 const h50 = new CountUp('h50', 0, 0, 0, .5, { useEasing: true, useGrouping: true, separator: " ", decimal: "." });
@@ -246,6 +336,7 @@ const ppCache = {
 
 socket.api_v2(({ play, beatmap, directPath, folders, performance, state, resultsScreen }) => {
     try {
+        const percentage = Math.max(0, Math.min(beatmap.time.live / beatmap.time.mp3Length * 100, 100));
         if (chartDarker !== undefined && chartLighter !== undefined && chartProgress !== undefined) {
             const dataString = JSON.stringify(performance.graph);
             if (cache.difficultyGraph !== dataString) {
@@ -254,26 +345,54 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
                 renderGraph(performance.graph);
             }
 
-            const percentage = Math.max(0, Math.min(beatmap.time.live / beatmap.time.mp3Length * 100, 100));
             chartProgress.style.width = String(percentage) + "%";
         }
 
-        let pp = state.name === 'ResultScreen' ? resultsScreen.pp : play.pp;
-        let hits = state.name === 'ResultScreen' ? resultsScreen.hits : play.hits;
+        let pp = state.name === 'resultScreen' ? resultsScreen.pp : play.pp;
+        let hits = state.name === 'resultScreen' ? resultsScreen.hits : play.hits;
 
-        if (cache.h100 !== hits['100']) {
+        const isSliderBreak = cache.sliderBreaks !== hits['sliderBreaks'];
+        const isMultiplayerResultScreen = ['rankingVs', 'rankingTagCoop', 'rankingTeam'].includes(state.name);
+
+        if (cache.h100 !== hits['100'] && !isMultiplayerResultScreen) {
             cache.h100 = hits['100'];
             h100.update(hits['100']);
+            hitJudgementsCleared = false;
+
+            if (hits['100'] > 0 && state.name === 'play') {
+                cache.sliderBreaks = hits['sliderBreaks'];
+                hitJudgementsAdd(hitJudgementsElement, "100", percentage, isSliderBreak);
+            }
         }
 
-        if (cache.h50 !== hits['50']) {
+        if (cache.h50 !== hits['50'] && !isMultiplayerResultScreen) {
             cache.h50 = hits['50'];
             h50.update(hits['50']);
+            hitJudgementsCleared = false;
+
+            if (hits['50'] > 0 && state.name === 'play') {
+                cache.sliderBreaks = hits['sliderBreaks'];
+                hitJudgementsAdd(hitJudgementsElement, "50", percentage, isSliderBreak);
+            }
         }
 
-        if (cache.h0 !== hits['0']) {
+        if (cache.h0 !== hits['0'] && !isMultiplayerResultScreen) {
             cache.h0 = hits['0'];
             h0.update(hits['0']);
+            hitJudgementsCleared = false;
+
+            if (hits['0'] > 0 && state.name === 'play') {
+                cache.sliderBreaks = hits['sliderBreaks'];
+                hitJudgementsAdd(hitJudgementsElement, "x", percentage, isSliderBreak);
+            }
+        }
+
+        const isResultScreen = state.name === 'resultScreen' || isMultiplayerResultScreen;
+
+        if (hits['100'] === 0 && hits['50'] === 0 && hits['0'] === 0 && !hitJudgementsCleared && !isResultScreen) {
+            hitJudgementsClear(hitJudgementsElement);
+            hitJudgementsCleared = true;
+            cache.sliderBreaks = 0;
         }
 
         if (cache.pp !== Math.round(pp.current)) {
@@ -319,7 +438,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             cache.bpm = beatmap.stats.bpm.realtime;
             bpmValue.innerHTML = beatmap.stats.bpm.realtime;
 
-            document.querySelector('.beat-lighting').setAttribute('style', `animation: bpm-animation ${1000 / (beatmap.stats.bpm.realtime / 60)}ms infinite linear;`)
+            document.querySelector('.beat-lighting').style.animationDuration = `${1000 / (beatmap.stats.bpm.realtime / 60)}ms`;
         }
 
         if (cache.cs !== beatmap.stats.cs.converted) {
@@ -335,7 +454,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
 
             csBox.style.color = csBoxTextColor;
             cache.cs = beatmap.stats.cs.converted;
-            csValue.innerHTML = Math.round(beatmap.stats.cs.converted*100)/100;
+            csValue.innerHTML = Math.round(beatmap.stats.cs.converted * 100) / 100;
         }
 
         if (cache.ar !== beatmap.stats.ar.converted) {
@@ -351,7 +470,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
 
             arBox.style.color = arBoxTextColor;
             cache.ar = beatmap.stats.ar.converted;
-            arValue.innerHTML = Math.round(beatmap.stats.ar.converted*100)/100;
+            arValue.innerHTML = Math.round(beatmap.stats.ar.converted * 100) / 100;
         }
 
         if (cache.od !== beatmap.stats.od.converted) {
@@ -367,7 +486,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
 
             odBox.style.color = odBoxTextColor;
             cache.od = beatmap.stats.od.converted;
-            odValue.innerHTML = Math.round(beatmap.stats.od.converted*100)/100;
+            odValue.innerHTML = Math.round(beatmap.stats.od.converted * 100) / 100;
         }
 
         if (cache.hp !== beatmap.stats.hp.converted) {
@@ -383,7 +502,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
 
             hpBox.style.color = hpBoxTextColor;
             cache.hp = beatmap.stats.hp.converted;
-            hpValue.innerHTML = Math.round(beatmap.stats.hp.converted*100)/100;
+            hpValue.innerHTML = Math.round(beatmap.stats.hp.converted * 100) / 100;
         }
 
         if (cache.maxSR !== beatmap.stats.stars.total) {
@@ -392,14 +511,19 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             let srTextColor = beatmap.stats.stars.total >= 6.5 ? '#fd5' : '#000000';
             sr.innerHTML = beatmap.stats.stars.total.toFixed(2);
             sr.style.color = srTextColor;
-            document.querySelector('.sr-star').style.backgroundColor = srTextColor;
+            if (cache.skin === 'FREEDOM DiVE REiMAGINED') {
+                document.querySelector('.sr-star').style.backgroundColor = '';
+                document.querySelector('.sr-star').style.backgroundImage = beatmap.stats.stars.total >= 6.5 ? "url('./assets/freedomDive/fd-star.png')" : "url('./assets/freedomDive/fd-star-black.png')";
+            } else {
+                document.querySelector('.sr-star').style.backgroundColor = srTextColor;
+            }
             document.getElementById('srCont').style.backgroundColor = getDiffColour(cache.maxSR);
         }
 
-        if ((state.name === 'Play' || state.name === 'ResultScreen') && Boolean(cache['UseSSPP'])) {
+        if ((state.name === 'play' || state.name === 'resultScreen') && Boolean(cache['UseSSPP'])) {
             cache.ppSS = performance.accuracy[100];
             document.getElementById('ppFC').innerHTML = Math.round(performance.accuracy[100]).toString();
-          } else if ((state.name === 'Play' || state.name === 'ResultScreen') && cache.ppFC !== pp.fc) {
+        } else if ((state.name === 'play' || state.name === 'resultScreen') && cache.ppFC !== pp.fc) {
             cache.ppFC = pp.fc;
             document.getElementById('ppFC').innerHTML = Math.round(pp.fc).toString();
         } else if (cache.ppSS !== performance.accuracy[100]) {
@@ -407,9 +531,7 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             document.getElementById('ppFC').innerHTML = Math.round(performance.accuracy[100]).toString();
         }
 
-        if (Boolean(cache['ShowVisualizer'])) {
-            document.querySelector('.beat-lighting').style.opacity = 1;
-        }
+
 
         const ppValueContainer = document.querySelector('.ppFC');
         const ppCurrent = document.querySelector('.ppCurrent')
@@ -418,9 +540,9 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
         const hitErrorsContainer = document.querySelector('.hit-errors')
 
 
-        if (state.name !== 'Play' && state.name !== 'ResultScreen') {
+        if (state.name !== 'play' && state.name !== 'resultScreen' && !isMultiplayerResultScreen) {
             const pp = document.getElementById('ppFC');
-            
+
             const hitErrors = document.getElementById('ppFC');
 
             if (pp.innerHTML !== cache.ppSS) {
@@ -429,10 +551,16 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
 
             hitErrorsContainer.style.height = 0;
             hitErrorsContainer.style.opacity = 0;
-            ppContainer.style.height = '100%';
+            if (cache.skin === 'FREEDOM DiVE REiMAGINED') {
+                ppContainer.style.height = '50%';
+            } else {
+                ppContainer.style.height = '100%';
 
-            ppValueContainer.style.transform = 
-                `translateX(-50%) scale(1.8)`
+            }
+            
+            ppValueContainer.style.transform =
+                `translateX(-50%) scale(1.5)`
+            
             ppValueContainer.style.left = '50%'
 
             ppCurrent.style.opacity = 0;
@@ -445,12 +573,18 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
 
             hitErrorsContainer.style.height = '60%';
             hitErrorsContainer.style.opacity = 1;
-            ppContainer.style.height = '40%';
+        
+            if (cache.skin === 'FREEDOM DiVE REiMAGINED') {
+                ppContainer.style.height = '80%';
+            } else {
+                ppContainer.style.height = '50%';
+
+            }
 
             ppValueContainer.style.transform =
                 `translateX(-50%) scale(1)`
             ppValueContainer.style.left = '75%'
-            
+
             ppCurrent.style.opacity = 1;
             slash.style.opacity = 1;
 
@@ -458,6 +592,20 @@ socket.api_v2(({ play, beatmap, directPath, folders, performance, state, results
             ppCurrent.style.left = '25%';
             slash.style.transform = 'translate(-50%, 0px)';
         }
+
+        if (cache.mods_name != play.mods.name) {
+            cache.mods_name = play.mods.name;
+            if (play.mods.name === '' || play.mods.name === 'RX') {
+                document.querySelector('.mod-container').style.transform = 'translateX(100%)';
+            } else {
+                document.querySelector('.mod-container').style.transform = 'translateX(0%)';
+            }
+            Array.from(document.getElementsByClassName('mods')).forEach(element => {
+                element.innerHTML = play.mods.name.replace(/(.{2})(?=.)/g, '$1 ');
+            })
+            reset('mods-text')
+            checkAndAnimateScroll(document.querySelector('.mods-wrapper'), document.getElementById('mods'));
+        };
 
         if (cache['menu.bm.path.full'] != directPath.beatmapBackground) {
             cache['menu.bm.path.full'] = directPath.beatmapBackground;
@@ -509,13 +657,15 @@ function reset(item) {
         cancelAnimationFrame(animationId0);
     } else if (animationId1 && item === 'diff-text') {
         cancelAnimationFrame(animationId1);
+    } else if (animationId2 && item === 'mods-text') {
+        cancelAnimationFrame(animationId2);
     }
 }
 
 /**
- * No comments, just shitcode
- * @param {HTMLElement} parent 
- * @param {HTMLElement} child 
+ * No comments
+ * @param {HTMLElement} parent
+ * @param {HTMLElement} child
  */
 async function checkAndAnimateScroll(parent, child) {
     if (child.getBoundingClientRect().width >= parent.getBoundingClientRect().width) {
@@ -523,7 +673,7 @@ async function checkAndAnimateScroll(parent, child) {
         const titles = parent.querySelectorAll('span')
 
         if (titles.length < 2) parent.append(child.cloneNode(true));
-        
+
     } else {
         parent.classList.remove('marquee')
         const titles = parent.querySelectorAll('span')
@@ -531,53 +681,6 @@ async function checkAndAnimateScroll(parent, child) {
         if (titles.length > 1) titles[0].remove();
     }
 }
-
-// function checkAndAnimateScroll(box, text, picker) {
-//     if (text.clientWidth > box.clientWidth) {
-//         const clone = text.cloneNode(true);
-//         clone.classList.add('clone');
-//         clone.style.left = `${text.scrollWidth + 20}px`;
-
-//         box.appendChild(clone);
-//         box.style.WebkitMask = 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)';
-
-//         startScroll(text, clone, picker);
-//     }
-//     else {
-//         text.style.left = '0px';
-//         box.style.WebkitMask = '';
-//     }
-// }
-
-// function startScroll(original, clone, picker) {
-//     let originalPos = 0;
-//     let clonePos = original.scrollWidth + 20;
-
-//     function animate() {
-//         originalPos -= 0.2;
-//         clonePos -= 0.2;
-
-//         original.style.left = `${originalPos}px`;
-//         clone.style.left = `${clonePos}px`;
-
-//         if (originalPos < -original.scrollWidth - 20) {
-//             originalPos = clonePos + original.scrollWidth + 20;
-//         }
-//         if (clonePos < -clone.scrollWidth - 20) {
-//             clonePos = originalPos + clone.scrollWidth + 20;
-//         }
-
-//         if (picker == 0) {
-//             animationId0 = requestAnimationFrame(animate);
-//         } else if (picker == 1) {
-//             animationId1 = requestAnimationFrame(animate);
-//         } else {
-//             console.log('Massive error, please report this to the developer on discord: @h_24');
-//         }
-//     }
-
-//     animate();
-// }
 
 function hexToRgbA(hex, alpha = 1) {
     var c;
